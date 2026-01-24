@@ -1,0 +1,13 @@
+site_name: Django Security Label
+site_description: Django support for PostgreSQL security labels
+repo_url: https://github.com/yourusername/django-security-label
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Usage: usage.md
+
+docs_dir: docs

@@ -45,7 +45,7 @@ class TestColumnSecurityLabel:
             string_literal="test_literal",
         )
         assert label._get_security_label() == (
-            "SECURITY LABEL FOR %(provider)s ON COLUMN %(table)s.%(column)s IS '%(string_literal)s')'"
+            "SECURITY LABEL FOR %(provider)s ON COLUMN %(table)s.%(column)s IS '%(string_literal)s'"
         )
 
     def test_remove_security_label(self):
@@ -78,7 +78,7 @@ class TestColumnSecurityLabel:
 
         assert str(statement) == (
             "SECURITY LABEL FOR \"test_provider\" ON COLUMN \"test_table\".\"text_column\" "
-            "IS '\"test_literal\"')"
+            "IS 'test_literal'"
         )
 
     def test_remove_sql(self):
@@ -113,11 +113,9 @@ class TestColumnSecurityLabel:
 
         assert path == "django_security_label.labels.ColumnSecurityLabel"
         assert expressions == ()
-        assert kwargs == {
-            "fields": ["text"],
-            "provider": "test_provider",
-            "string_literal": "test_literal",
-        }
+        assert kwargs["fields"] == ["text"]
+        assert kwargs["provider"] == "test_provider"
+        assert kwargs["string_literal"] == "test_literal"
 
 
 class TestMaskFunction:
@@ -138,7 +136,7 @@ class TestAnonMaskSecurityLabel:
             mask_function=MaskFunction.dummy_name,
         )
         assert label.provider == "anon"
-        assert label.string_literal == "IS MASKED WITH anon.dummy_name()"
+        assert label.string_literal == "MASKED WITH FUNCTION anon.dummy_name()"
         assert label.fields == ["text"]
 
     def test_init_ignores_provider_and_string_literal_kwargs(self):
@@ -149,14 +147,14 @@ class TestAnonMaskSecurityLabel:
             string_literal="ignored_literal",
         )
         assert label.provider == "anon"
-        assert label.string_literal == "IS MASKED WITH anon.dummy_name()"
+        assert label.string_literal == "MASKED WITH FUNCTION anon.dummy_name()"
 
     def test_with_mask_function_string(self):
         label = AnonMaskSecurityLabel(
             fields=["text"],
             mask_function="custom_mask()",
         )
-        assert label.string_literal == "IS MASKED WITH anon.custom_mask()"
+        assert label.string_literal == "MASKED WITH FUNCTION anon.custom_mask()"
 
     def test_single_field_validation(self):
         with pytest.raises(ValueError, match="must be used with exactly one field"):

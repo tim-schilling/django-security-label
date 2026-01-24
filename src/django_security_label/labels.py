@@ -13,7 +13,7 @@ class ColumnSecurityLabel(models.Index):
         super().__init__(*args, fields=fields, **kwargs)
 
     def _get_security_label(self):
-        return "SECURITY LABEL FOR %(provider)s ON COLUMN %(table)s.%(column)s IS '%(string_literal)s')'"
+        return "SECURITY LABEL FOR %(provider)s ON COLUMN %(table)s.%(column)s IS '%(string_literal)s'"
 
     def _remove_security_label(self):
         return "SECURITY LABEL FOR %(provider)s ON COLUMN %(table)s.%(column)s IS NULL"
@@ -24,7 +24,7 @@ class ColumnSecurityLabel(models.Index):
             table=Table(model._meta.db_table, schema_editor.quote_name),
             column=schema_editor.quote_name(model._meta.get_field(self.fields[0]).column),
             provider=schema_editor.quote_name(self.provider),
-            string_literal=schema_editor.quote_name(self.string_literal),
+            string_literal=self.string_literal,
         )
 
     def remove_sql(self, model, schema_editor, **kwargs):
@@ -124,7 +124,7 @@ class AnonMaskSecurityLabel(ColumnSecurityLabel):
         self.mask_function = mask_function
         kwargs.pop("string_literal", None)
         kwargs.pop("provider", None)
-        string_literal = f"IS MASKED WITH anon.{mask_function}"
+        string_literal = f"MASKED WITH FUNCTION anon.{mask_function}"
         super().__init__(*args, provider="anon", string_literal=string_literal, **kwargs)
 
     def deconstruct(self):

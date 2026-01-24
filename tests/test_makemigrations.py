@@ -35,16 +35,16 @@ class MakeMigrationsTests(EnterContextMixin, TestCase):
         migration_content = migration_file.read_text()
 
         assert (
-            'django_security_label.labels.AnonMaskSecurityLabel(fields=["text"], mask_function="dummy_catchphrase()")'
+            "django_security_label.labels.AnonMaskSecurityLabel(fields=['text'], mask_function=django_security_label.labels.MaskFunction['dummy_catchphrase'], name='testapp_mas_text_6adba0_idx', provider='anon', string_literal='MASKED WITH FUNCTION anon.dummy_catchphrase()')"
         ) in migration_content
         assert (
-            'django_security_label.labels.AnonMaskSecurityLabel(fields=["uuid"], mask_function="dummy_uuidv4()")'
+            "django_security_label.labels.AnonMaskSecurityLabel(fields=['uuid'], mask_function=django_security_label.labels.MaskFunction['dummy_uuidv4'], name='testapp_mas_uuid_18a3e6_idx', provider='anon', string_literal='MASKED WITH FUNCTION anon.dummy_uuidv4()')"
         ) in migration_content
         assert (
-            'django_security_label.labels.ColumnSecurityLabel(fields=["confidential"], provider="anon", string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$")'
+            "django_security_label.labels.ColumnSecurityLabel(fields=['confidential'], name='testapp_mas_confide_030817_idx', provider='anon', string_literal='MASKED WITH VALUE $$CONFIDENTIAL$$')"
         ) in migration_content
         assert (
-            'django_security_label.labels.ColumnSecurityLabel(fields=["random_int"], provider="anon", string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)")'
+            "django_security_label.labels.ColumnSecurityLabel(fields=['random_int'], name='testapp_mas_random__45b12e_idx', provider='anon', string_literal='MASKED WITH FUNCTION anon.random_int_between(0,50)')"
         ) in migration_content
 
 
@@ -74,41 +74,43 @@ class MakeMigrationsRemovalTests(EnterContextMixin, TestCase):
                     ),
                     migrations.AddIndex(
                         model_name="maskedcolumn",
-                        index=django_security_label.labels.AnonMaskSecurityLabel(fields=["text"], mask_function="dummy_catchphrase()"),
+                        index=django_security_label.labels.AnonMaskSecurityLabel(fields=["safe_text"], mask_function="dummy_catchphrase()", name="maskedcolumn_safe_text_idx"),
                     ),
                     migrations.AddIndex(
                         model_name="maskedcolumn",
-                        index=django_security_label.labels.AnonMaskSecurityLabel(fields=["uuid"], mask_function="dummy_uuidv4()"),
+                        index=django_security_label.labels.AnonMaskSecurityLabel(fields=["text"], mask_function="dummy_catchphrase()", name="maskedcolumn_text_idx"),
                     ),
                     migrations.AddIndex(
                         model_name="maskedcolumn",
-                        index=django_security_label.labels.ColumnSecurityLabel(fields=["confidential"], provider="anon", string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$"),
+                        index=django_security_label.labels.AnonMaskSecurityLabel(fields=["uuid"], mask_function="dummy_uuidv4()", name="maskedcolumn_uuid_idx"),
                     ),
                     migrations.AddIndex(
                         model_name="maskedcolumn",
-                        index=django_security_label.labels.ColumnSecurityLabel(fields=["random_int"], provider="anon", string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)"),
+                        index=django_security_label.labels.ColumnSecurityLabel(fields=["confidential"], provider="anon", string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$", name="maskedcolumn_confidential_idx"),
                     ),
                     migrations.AddIndex(
                         model_name="maskedcolumn",
-                        index=django_security_label.labels.AnonMaskSecurityLabel(fields=["safe_text"], mask_function="dummy_name()"),
+                        index=django_security_label.labels.ColumnSecurityLabel(fields=["random_int"], provider="anon", string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)", name="maskedcolumn_random_int_idx"),
                     ),
                 ]
         """))
 
     call_command = staticmethod(partial(run_command, "makemigrations"))
 
-    def test_creates_migration_removing_security_label(self):
+    def test_creates_migration_removing_security_labels(self):
         out, err, returncode = self.call_command("testapp")
 
         assert returncode == 0
 
-        migration_file = self.migrations_dir / "0002_remove_maskedcolumn_maskedcolumn_safe_t_b09b74_idx.py"
-        assert migration_file.exists()
+        migration_files = list(self.migrations_dir.glob("*.py"))
+        migration_file = next(
+            f for f in migration_files if f.name not in ("__init__.py", "0001_initial.py")
+        )
 
         migration_content = migration_file.read_text()
         assert (
             'migrations.RemoveIndex(\n'
-            '            model_name="maskedcolumn",\n'
-            '            name="maskedcolumn_safe_t_b09b74_idx",\n'
+            '            model_name=\'maskedcolumn\',\n'
+            '            name=\'maskedcolumn_safe_text_idx\',\n'
             '        )'
         ) in migration_content

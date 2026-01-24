@@ -18,34 +18,38 @@ class MakeMigrationsTests(EnterContextMixin, TestCase):
     def test_dry_run(self):
         out, err, returncode = self.call_command("--dry-run", "testapp")
 
-        assert returncode == 0
-        assert not (self.migrations_dir / "max_migration.txt").exists()
+        self.assertEqual(returncode, 0)
+        self.assertFalse((self.migrations_dir / "max_migration.txt").exists())
 
     def test_creates_migration_with_security_labels(self):
         out, err, returncode = self.call_command("testapp")
 
-        assert returncode == 0
+        self.assertEqual(returncode, 0)
 
         migration_files = list(self.migrations_dir.glob("*.py"))
-        assert len(migration_files) == 2
+        self.assertEqual(len(migration_files), 2)
 
         migration_file = next(
             f for f in migration_files if f.name != "__init__.py"
         )
         migration_content = migration_file.read_text()
 
-        assert (
-            "django_security_label.labels.AnonMaskSecurityLabel(fields=['text'], mask_function=django_security_label.labels.MaskFunction['dummy_catchphrase'], name='testapp_mas_text_6adba0_idx', provider='anon', string_literal='MASKED WITH FUNCTION anon.dummy_catchphrase()')"
-        ) in migration_content
-        assert (
-            "django_security_label.labels.AnonMaskSecurityLabel(fields=['uuid'], mask_function=django_security_label.labels.MaskFunction['dummy_uuidv4'], name='testapp_mas_uuid_18a3e6_idx', provider='anon', string_literal='MASKED WITH FUNCTION anon.dummy_uuidv4()')"
-        ) in migration_content
-        assert (
-            "django_security_label.labels.ColumnSecurityLabel(fields=['confidential'], name='testapp_mas_confide_030817_idx', provider='anon', string_literal='MASKED WITH VALUE $$CONFIDENTIAL$$')"
-        ) in migration_content
-        assert (
-            "django_security_label.labels.ColumnSecurityLabel(fields=['random_int'], name='testapp_mas_random__45b12e_idx', provider='anon', string_literal='MASKED WITH FUNCTION anon.random_int_between(0,50)')"
-        ) in migration_content
+        self.assertIn(
+            "django_security_label.labels.AnonMaskSecurityLabel(fields=['text'], mask_function=django_security_label.labels.MaskFunction['dummy_catchphrase'], name='testapp_mas_text_6adba0_idx', provider='anon', string_literal='MASKED WITH FUNCTION anon.dummy_catchphrase()')",
+            migration_content,
+        )
+        self.assertIn(
+            "django_security_label.labels.AnonMaskSecurityLabel(fields=['uuid'], mask_function=django_security_label.labels.MaskFunction['dummy_uuidv4'], name='testapp_mas_uuid_18a3e6_idx', provider='anon', string_literal='MASKED WITH FUNCTION anon.dummy_uuidv4()')",
+            migration_content,
+        )
+        self.assertIn(
+            "django_security_label.labels.ColumnSecurityLabel(fields=['confidential'], name='testapp_mas_confide_030817_idx', provider='anon', string_literal='MASKED WITH VALUE $$CONFIDENTIAL$$')",
+            migration_content,
+        )
+        self.assertIn(
+            "django_security_label.labels.ColumnSecurityLabel(fields=['random_int'], name='testapp_mas_random__45b12e_idx', provider='anon', string_literal='MASKED WITH FUNCTION anon.random_int_between(0,50)')",
+            migration_content,
+        )
 
 
 class MakeMigrationsRemovalTests(EnterContextMixin, TestCase):
@@ -100,7 +104,7 @@ class MakeMigrationsRemovalTests(EnterContextMixin, TestCase):
     def test_creates_migration_removing_security_labels(self):
         out, err, returncode = self.call_command("testapp")
 
-        assert returncode == 0
+        self.assertEqual(returncode, 0)
 
         migration_files = list(self.migrations_dir.glob("*.py"))
         migration_file = next(
@@ -108,9 +112,10 @@ class MakeMigrationsRemovalTests(EnterContextMixin, TestCase):
         )
 
         migration_content = migration_file.read_text()
-        assert (
+        self.assertIn(
             'migrations.RemoveIndex(\n'
             '            model_name=\'maskedcolumn\',\n'
             '            name=\'maskedcolumn_safe_text_idx\',\n'
-            '        )'
-        ) in migration_content
+            '        )',
+            migration_content,
+        )

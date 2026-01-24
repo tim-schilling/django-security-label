@@ -57,40 +57,48 @@ class SqlMigrateTests(EnterContextMixin, TestCase):
     def test_forward_migration(self):
         out, err, returncode = self.call_command("testapp", "0001")
 
-        assert returncode == 0
-        assert (
+        self.assertEqual(returncode, 0)
+        self.assertIn(
             "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"text\" "
-            "IS 'MASKED WITH FUNCTION anon.dummy_catchphrase()'"
-        ) in out
-        assert (
+            "IS 'MASKED WITH FUNCTION anon.dummy_catchphrase()'",
+            out,
+        )
+        self.assertIn(
             "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"uuid\" "
-            "IS 'MASKED WITH FUNCTION anon.dummy_uuidv4()'"
-        ) in out
-        assert (
+            "IS 'MASKED WITH FUNCTION anon.dummy_uuidv4()'",
+            out,
+        )
+        self.assertIn(
             "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"confidential\" "
-            "IS 'MASKED WITH VALUE $$CONFIDENTIAL$$'"
-        ) in out
-        assert (
+            "IS 'MASKED WITH VALUE $$CONFIDENTIAL$$'",
+            out,
+        )
+        self.assertIn(
             "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"random_int\" "
-            "IS 'MASKED WITH FUNCTION anon.random_int_between(0,50)'"
-        ) in out
+            "IS 'MASKED WITH FUNCTION anon.random_int_between(0,50)'",
+            out,
+        )
 
     def test_backward_migration(self):
         out, err, returncode = self.call_command("testapp", "0001", "--backwards")
 
-        assert returncode == 0
-        assert (
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"text\" IS NULL"
-        ) in out
-        assert (
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"uuid\" IS NULL"
-        ) in out
-        assert (
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"confidential\" IS NULL"
-        ) in out
-        assert (
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"random_int\" IS NULL"
-        ) in out
+        self.assertEqual(returncode, 0)
+        self.assertIn(
+            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"text\" IS NULL",
+            out,
+        )
+        self.assertIn(
+            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"uuid\" IS NULL",
+            out,
+        )
+        self.assertIn(
+            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"confidential\" IS NULL",
+            out,
+        )
+        self.assertIn(
+            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"random_int\" IS NULL",
+            out,
+        )
 
 
 class SqlMigrateRemovalTests(EnterContextMixin, TestCase):
@@ -141,16 +149,18 @@ class SqlMigrateRemovalTests(EnterContextMixin, TestCase):
     def test_forward_migration_removes_label(self):
         out, err, returncode = self.call_command("testapp", "0002")
 
-        assert returncode == 0
-        assert (
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"safe_text\" IS NULL"
-        ) in out
+        self.assertEqual(returncode, 0)
+        self.assertIn(
+            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"safe_text\" IS NULL",
+            out,
+        )
 
     def test_backward_migration_restores_label(self):
         out, err, returncode = self.call_command("testapp", "0002", "--backwards")
 
-        assert returncode == 0
-        assert (
+        self.assertEqual(returncode, 0)
+        self.assertIn(
             "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"safe_text\" "
-            "IS 'MASKED WITH FUNCTION anon.dummy_name()'"
-        ) in out
+            "IS 'MASKED WITH FUNCTION anon.dummy_name()'",
+            out,
+        )

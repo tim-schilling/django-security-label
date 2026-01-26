@@ -140,6 +140,16 @@ pip install django-security-label
 
 ## Documentation
 
+### Examples
+
+Below are examples of the Django admin using the masked reading with a superuser and a typical staff user.
+
+#### Superuser / unmasked Read
+![Unmasked Read](docs/images/unmasked_read.png)
+
+#### Staff user / masked Read
+![Masked Read](docs/images/masked_read.png)
+
 ### Controlling masked reads
 
 The default configuration of this package uses dynamic masking. This is because static masking will irrevocably destroy your database's data. While this is a valuable tool for some staging environments, it's not the goal at the moment.

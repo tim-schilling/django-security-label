@@ -67,13 +67,15 @@ jobs:
       run: uv pip install --system tox tox-uv
 
     - name: Run tox targets for ${{ matrix.python-version }}
+      env:
+        COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
       run: tox run -f py$(echo ${{ matrix.python-version }} | tr -d .)
 
     - name: Upload coverage data
       uses: actions/upload-artifact@v6
       with:
-        name: coverage-data-${{ matrix.python-version }}
-        path: '${{ github.workspace }}/.coverage.*'
+        name: coverage-${{ matrix.python-version }}
+        path: .coverage.${{ matrix.python-version }}*
         include-hidden-files: true
         if-no-files-found: error
 
@@ -81,41 +83,31 @@ jobs:
     name: Coverage
     runs-on: ubuntu-latest
     needs: tests
+    permissions:
+      pull-requests: write
+      contents: write
     steps:
       - uses: actions/checkout@v6
         with:
-          persist-credentials: false
+          # Persist the credentials because coverage_comment needs them too.
+          persist-credentials: true
 
-      - uses: actions/setup-python@v6
+      - uses: actions/download-artifact@v6
+        id: download
         with:
-          python-version: '3.13'
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b  # v7
-        with:
-          enable-cache: false
-
-      - name: Install dependencies
-        run: uv pip install --system coverage[toml]
-
-      - name: Download data
-        uses: actions/download-artifact@v7
-        with:
-          path: ${{ github.workspace }}
-          pattern: coverage-data-*
+          pattern: coverage-*
           merge-multiple: true
 
-      - name: Combine coverage and fail if it's <100%
-        run: |
-          python -m coverage combine
-          python -m coverage html --skip-covered --skip-empty
-          python -m coverage report --fail-under=100
-          echo "## Coverage summary" >> $GITHUB_STEP_SUMMARY
-          python -m coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
-
-      - name: Upload HTML report
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v6
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@e623398c19eb3853a5572d4a516e10b15b5cefbc # v3.39
         with:
-          name: html-report
-          path: htmlcov
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_COVERAGE_FILES: true
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v5
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt

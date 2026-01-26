@@ -1,5 +1,5 @@
 # The original source for this is from:
-# https://github.com/adamchainz/django-linear-migrations/blob/main/tests/compat.py
+# https://github.com/adamchainz/django-linear-migrations/blob/main/tests/utils.py
 
 from __future__ import annotations
 

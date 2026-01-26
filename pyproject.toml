@@ -121,14 +121,14 @@ branch = true
 parallel = true
 relative_files = true
 source = [
-  "src/django_security_label",
+  "django_security_label",
   "tests",
 ]
 
 [tool.coverage.paths]
 source = [
-  "src",
-  ".tox/*/site-packages",
+  "src/django_security_label",
+  ".tox/**/site-packages/django_security_label",
 ]
 
 [tool.coverage.report]

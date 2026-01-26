@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.db import connection
+from django.db import InternalError, connection
 from django.http import HttpRequest
 
 
@@ -24,12 +24,14 @@ class MaskedReadsMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if enable_masking := use_masked_reads(request):
+        if use_masked_reads(request):
             enable_masked_reads()
-
-        response = self.get_response(request)
-
-        if enable_masking:
+            try:
+                response = self.get_response(request)
+            except InternalError:
+                disable_masked_reads()
+                raise
             disable_masked_reads()
+            return response
 
-        return response
+        return self.get_response(request)

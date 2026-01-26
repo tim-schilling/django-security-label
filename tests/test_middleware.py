@@ -17,12 +17,6 @@ class TestMaskedReadsMiddleware(TransactionTestCase):
         connection.close()
         connection.ensure_connection()
 
-    def tearDown(self):
-        # Make sure that our role doesn't have a security label still applied
-        with connection.cursor() as cursor:
-            db_user = connection.ops.quote_name(connection.settings_dict["USER"])
-            cursor.execute(f"SECURITY LABEL FOR anon ON ROLE {db_user} IS NULL")
-
     def setUp(self):
         self.request_factory = RequestFactory()
         self.test_record = MaskedColumn.objects.create(

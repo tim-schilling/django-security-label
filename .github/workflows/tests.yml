@@ -30,7 +30,7 @@ jobs:
 
     services:
       postgres:
-        image: registry.gitlab.com/dalibo/postgresql_anonymizer:latest
+        image: registry.gitlab.com/dalibo/postgresql_anonymizer@sha256:c5e33cc79ddc3bfcce9490dec666ddf937044c460c4f35ae214cf7738e9c5fd5
         env:
           POSTGRES_USER: django-security-label
           POSTGRES_PASSWORD: django-security-label

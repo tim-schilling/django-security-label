@@ -6,6 +6,8 @@ Django support for [PostgreSQL security labels](https://www.postgresql.org/docs/
 
 This package provides tools for applying and managing security labels in PostgreSQL databases on your Django models. This can allow you to dynamically mask specific columns to limit a user's ability to find sensitive data.
 
+This was created with [Jay Miller](https://kjaymiller.com/) for the ["Elephant in the Room" series](https://www.youtube.com/watch?v=oSDPKT5bbuw&list=PLo6PI-0mPVLszndcJ86JStMHLibO2BHdc). The inspiration for the project was from his blog post, ["Using PostgreSQL Anonymizer to safely share data with LLMs"](https://aiven.io/blog/using-postgresql-anonymizer-to-safely-share-data-with-llms)
+
 ## Installation
 
 ```bash

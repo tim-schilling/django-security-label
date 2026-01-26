@@ -32,19 +32,20 @@ jobs:
       postgres:
         image: registry.gitlab.com/dalibo/postgresql_anonymizer:latest
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
+          POSTGRES_USER: django-security-label
+          POSTGRES_PASSWORD: django-security-label
+          POSTGRES_DB: django-security-label
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 6432:5432
+          - 5432:5432
     env:
-      DB_NAME: test_db
-      DB_USER: postgres
-      DB_PASSWORD: postgres
+      DB_NAME: django-security-label
+      DB_USER: django-security-label
+      DB_PASSWORD: django-security-label
       DB_PORT: 5432
 
     steps:

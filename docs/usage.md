@@ -1,3 +1,0 @@
-# Usage
-
-Documentation coming soon.

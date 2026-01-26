@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 SECRET_KEY = "example-secret-key-not-for-production"
@@ -47,7 +49,7 @@ DATABASES = {
         "USER": os.environ.get("DB_USER", "django-security-label"),
         "PASSWORD": os.environ.get("DB_PASSWORD", "django-security-label"),
         "HOST": os.environ.get("DB_HOST", "localhost"),
-        "PORT": os.environ.get("DB_PORT", ""),
+        "PORT": os.environ.get("DB_PORT", "6432"),
     },
 }
 
@@ -56,4 +58,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 USE_TZ = True
 
 STATIC_URL = "/static/"
-

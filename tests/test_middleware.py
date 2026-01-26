@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from django.db import connection
+from django.db import InternalError, connection
 from django.test import RequestFactory, TransactionTestCase
 
 from django_security_label.middleware import MaskedReadsMiddleware
@@ -16,6 +16,12 @@ class TestMaskedReadsMiddleware(TransactionTestCase):
         # Force a reconnection in your test setup to pick up anon configuration
         connection.close()
         connection.ensure_connection()
+
+    def tearDown(self):
+        # Make sure that our role doesn't have a security label still applied
+        with connection.cursor() as cursor:
+            db_user = connection.ops.quote_name(connection.settings_dict["USER"])
+            cursor.execute(f"SECURITY LABEL FOR anon ON ROLE {db_user} IS NULL")
 
     def setUp(self):
         self.request_factory = RequestFactory()
@@ -39,23 +45,23 @@ class TestMaskedReadsMiddleware(TransactionTestCase):
         response = middleware(request)
 
         self.assertNotEqual(response.row.text, "secret_text_value")
-        self.assertNotEqual(response.row.uuid, uuid.UUID("12345678-1234-5678-1234-567812345678"))
+        self.assertNotEqual(
+            response.row.uuid, uuid.UUID("12345678-1234-5678-1234-567812345678")
+        )
         self.assertEqual(response.row.confidential, "CONFIDENTIAL")
         self.assertGreaterEqual(response.row.random_int, 0)
         self.assertLessEqual(response.row.random_int, 50)
 
     def test_unauthenticated_user_sees_masked_data(self):
         def get_response(request):
-            with connection.cursor() as cursor:
-                cursor.execute("select * from testapp_maskedcolumn;")
-                print(f"Current DB user: {cursor.fetchall()}")
-            print(MaskedColumn.objects.all().values())
             request.row = MaskedColumn.objects.get(pk=self.test_record.pk)
             return request
 
         middleware = MaskedReadsMiddleware(get_response)
         request = self.request_factory.get("/")
-        request.user = type("User", (), {"is_authenticated": False, "is_superuser": False})()
+        request.user = type(
+            "User", (), {"is_authenticated": False, "is_superuser": False}
+        )()
 
         response = middleware(request)
 
@@ -69,7 +75,9 @@ class TestMaskedReadsMiddleware(TransactionTestCase):
 
         middleware = MaskedReadsMiddleware(get_response)
         request = self.request_factory.get("/")
-        request.user = type("User", (), {"is_authenticated": True, "is_superuser": False})()
+        request.user = type(
+            "User", (), {"is_authenticated": True, "is_superuser": False}
+        )()
 
         response = middleware(request)
 
@@ -83,11 +91,34 @@ class TestMaskedReadsMiddleware(TransactionTestCase):
 
         middleware = MaskedReadsMiddleware(get_response)
         request = self.request_factory.get("/")
-        request.user = type("User", (), {"is_authenticated": True, "is_superuser": True})()
+        request.user = type(
+            "User", (), {"is_authenticated": True, "is_superuser": True}
+        )()
 
         response = middleware(request)
 
         self.assertEqual(response.row.text, "secret_text_value")
-        self.assertEqual(response.row.uuid, uuid.UUID("12345678-1234-5678-1234-567812345678"))
+        self.assertEqual(
+            response.row.uuid, uuid.UUID("12345678-1234-5678-1234-567812345678")
+        )
         self.assertEqual(response.row.confidential, "hunter2")
         self.assertEqual(response.row.random_int, 999)
+
+    def test_masked_user_cant_update_unlabeled_columns(self):
+        def get_response(request):
+            MaskedColumn.objects.filter(pk=self.test_record.pk).update(
+                safe_text="updated_via_queryset",
+            )
+            return request
+
+        middleware = MaskedReadsMiddleware(get_response)
+        request = self.request_factory.get("/")
+        request.user = type(
+            "User", (), {"is_authenticated": True, "is_superuser": False}
+        )()
+
+        with self.assertRaises(InternalError):
+            middleware(request)
+
+        self.test_record.refresh_from_db()
+        self.assertEqual(self.test_record.safe_text, "safe_text_value")

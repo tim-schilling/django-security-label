@@ -29,9 +29,7 @@ class MakeMigrationsTests(EnterContextMixin, TestCase):
         migration_files = list(self.migrations_dir.glob("*.py"))
         self.assertEqual(len(migration_files), 2)
 
-        migration_file = next(
-            f for f in migration_files if f.name != "__init__.py"
-        )
+        migration_file = next(f for f in migration_files if f.name != "__init__.py")
         migration_content = migration_file.read_text()
 
         self.assertIn(
@@ -56,7 +54,8 @@ class MakeMigrationsRemovalTests(EnterContextMixin, TestCase):
     def setUp(self):
         self.migrations_dir = self.enterContext(temp_migrations_module())
         (self.migrations_dir / "__init__.py").write_text("")
-        (self.migrations_dir / "0001_initial.py").write_text(dedent("""\
+        (self.migrations_dir / "0001_initial.py").write_text(
+            dedent("""\
             from django.db import migrations, models
             import django_security_label.labels
 
@@ -97,7 +96,8 @@ class MakeMigrationsRemovalTests(EnterContextMixin, TestCase):
                         index=django_security_label.labels.ColumnSecurityLabel(fields=["random_int"], provider="anon", string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)", name="maskedcolumn_random_int_idx"),
                     ),
                 ]
-        """))
+        """)
+        )
 
     call_command = staticmethod(partial(run_command, "makemigrations"))
 
@@ -108,14 +108,16 @@ class MakeMigrationsRemovalTests(EnterContextMixin, TestCase):
 
         migration_files = list(self.migrations_dir.glob("*.py"))
         migration_file = next(
-            f for f in migration_files if f.name not in ("__init__.py", "0001_initial.py")
+            f
+            for f in migration_files
+            if f.name not in ("__init__.py", "0001_initial.py")
         )
 
         migration_content = migration_file.read_text()
         self.assertIn(
-            'migrations.RemoveIndex(\n'
-            '            model_name=\'maskedcolumn\',\n'
-            '            name=\'maskedcolumn_safe_text_idx\',\n'
-            '        )',
+            "migrations.RemoveIndex(\n"
+            "            model_name='maskedcolumn',\n"
+            "            name='maskedcolumn_safe_text_idx',\n"
+            "        )",
             migration_content,
         )

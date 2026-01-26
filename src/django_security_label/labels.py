@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from enum import StrEnum
 
 from django.db import models
-from django.db.backends.ddl_references import Table, Statement
+from django.db.backends.ddl_references import Statement, Table
 
 
 class ColumnSecurityLabel(models.Index):
@@ -9,7 +11,9 @@ class ColumnSecurityLabel(models.Index):
         self.provider = provider
         self.string_literal = string_literal
         if len(fields) != 1:
-            raise ValueError(f"{self.__class__.__name__} must be used with exactly one field.")
+            raise ValueError(
+                f"{self.__class__.__name__} must be used with exactly one field."
+            )
         super().__init__(*args, fields=fields, **kwargs)
 
     def _get_security_label(self):
@@ -22,7 +26,9 @@ class ColumnSecurityLabel(models.Index):
         return Statement(
             self._get_security_label(),
             table=Table(model._meta.db_table, schema_editor.quote_name),
-            column=schema_editor.quote_name(model._meta.get_field(self.fields[0]).column),
+            column=schema_editor.quote_name(
+                model._meta.get_field(self.fields[0]).column
+            ),
             provider=schema_editor.quote_name(self.provider),
             string_literal=self.string_literal,
         )
@@ -31,7 +37,9 @@ class ColumnSecurityLabel(models.Index):
         return Statement(
             self._remove_security_label(),
             table=Table(model._meta.db_table, schema_editor.quote_name),
-            column=schema_editor.quote_name(model._meta.get_field(self.fields[0]).column),
+            column=schema_editor.quote_name(
+                model._meta.get_field(self.fields[0]).column
+            ),
             provider=schema_editor.quote_name(self.provider),
         )
 
@@ -118,14 +126,16 @@ class MaskFunction(StrEnum):
     dummy_word = "dummy_word()"
     dummy_zip_code = "dummy_zip_code()"
 
-class AnonMaskSecurityLabel(ColumnSecurityLabel):
 
+class AnonMaskSecurityLabel(ColumnSecurityLabel):
     def __init__(self, *args, mask_function: str, **kwargs):
         self.mask_function = mask_function
         kwargs.pop("string_literal", None)
         kwargs.pop("provider", None)
         string_literal = f"MASKED WITH FUNCTION anon.{mask_function}"
-        super().__init__(*args, provider="anon", string_literal=string_literal, **kwargs)
+        super().__init__(
+            *args, provider="anon", string_literal=string_literal, **kwargs
+        )
 
     def deconstruct(self):
         (path, expressions, kwargs) = super().deconstruct()

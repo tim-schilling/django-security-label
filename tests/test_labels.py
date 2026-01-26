@@ -79,7 +79,7 @@ class TestColumnSecurityLabel(TestCase):
 
         self.assertEqual(
             str(statement),
-            "SECURITY LABEL FOR \"test_provider\" ON COLUMN \"test_table\".\"text_column\" "
+            'SECURITY LABEL FOR "test_provider" ON COLUMN "test_table"."text_column" '
             "IS 'test_literal'",
         )
 
@@ -103,7 +103,7 @@ class TestColumnSecurityLabel(TestCase):
 
         self.assertEqual(
             str(statement),
-            "SECURITY LABEL FOR \"test_provider\" ON COLUMN \"test_table\".\"text_column\" IS NULL",
+            'SECURITY LABEL FOR "test_provider" ON COLUMN "test_table"."text_column" IS NULL',
         )
 
     def test_deconstruct(self):
@@ -157,7 +157,9 @@ class TestAnonMaskSecurityLabel(TestCase):
             fields=["text"],
             mask_function="custom_mask()",
         )
-        self.assertEqual(label.string_literal, "MASKED WITH FUNCTION anon.custom_mask()")
+        self.assertEqual(
+            label.string_literal, "MASKED WITH FUNCTION anon.custom_mask()"
+        )
 
     def test_single_field_validation(self):
         with self.assertRaisesRegex(ValueError, "must be used with exactly one field"):

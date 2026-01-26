@@ -13,7 +13,8 @@ class SqlMigrateTests(EnterContextMixin, TestCase):
     def setUp(self):
         self.migrations_dir = self.enterContext(temp_migrations_module())
         (self.migrations_dir / "__init__.py").write_text("")
-        (self.migrations_dir / "0001_initial.py").write_text(dedent("""\
+        (self.migrations_dir / "0001_initial.py").write_text(
+            dedent("""\
             from django.db import migrations, models
             import django_security_label.labels
 
@@ -50,7 +51,8 @@ class SqlMigrateTests(EnterContextMixin, TestCase):
                         index=django_security_label.labels.ColumnSecurityLabel(fields=["random_int"], provider="anon", string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)", name="maskedcolumn_random_int_idx"),
                     ),
                 ]
-        """))
+        """)
+        )
 
     call_command = staticmethod(partial(run_command, "sqlmigrate"))
 
@@ -59,22 +61,22 @@ class SqlMigrateTests(EnterContextMixin, TestCase):
 
         self.assertEqual(returncode, 0)
         self.assertIn(
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"text\" "
+            'SECURITY LABEL FOR "anon" ON COLUMN "testapp_maskedcolumn"."text" '
             "IS 'MASKED WITH FUNCTION anon.dummy_catchphrase()'",
             out,
         )
         self.assertIn(
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"uuid\" "
+            'SECURITY LABEL FOR "anon" ON COLUMN "testapp_maskedcolumn"."uuid" '
             "IS 'MASKED WITH FUNCTION anon.dummy_uuidv4()'",
             out,
         )
         self.assertIn(
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"confidential\" "
+            'SECURITY LABEL FOR "anon" ON COLUMN "testapp_maskedcolumn"."confidential" '
             "IS 'MASKED WITH VALUE $$CONFIDENTIAL$$'",
             out,
         )
         self.assertIn(
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"random_int\" "
+            'SECURITY LABEL FOR "anon" ON COLUMN "testapp_maskedcolumn"."random_int" '
             "IS 'MASKED WITH FUNCTION anon.random_int_between(0,50)'",
             out,
         )
@@ -84,19 +86,19 @@ class SqlMigrateTests(EnterContextMixin, TestCase):
 
         self.assertEqual(returncode, 0)
         self.assertIn(
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"text\" IS NULL",
+            'SECURITY LABEL FOR "anon" ON COLUMN "testapp_maskedcolumn"."text" IS NULL',
             out,
         )
         self.assertIn(
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"uuid\" IS NULL",
+            'SECURITY LABEL FOR "anon" ON COLUMN "testapp_maskedcolumn"."uuid" IS NULL',
             out,
         )
         self.assertIn(
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"confidential\" IS NULL",
+            'SECURITY LABEL FOR "anon" ON COLUMN "testapp_maskedcolumn"."confidential" IS NULL',
             out,
         )
         self.assertIn(
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"random_int\" IS NULL",
+            'SECURITY LABEL FOR "anon" ON COLUMN "testapp_maskedcolumn"."random_int" IS NULL',
             out,
         )
 
@@ -105,7 +107,8 @@ class SqlMigrateRemovalTests(EnterContextMixin, TestCase):
     def setUp(self):
         self.migrations_dir = self.enterContext(temp_migrations_module())
         (self.migrations_dir / "__init__.py").write_text("")
-        (self.migrations_dir / "0001_initial.py").write_text(dedent("""\
+        (self.migrations_dir / "0001_initial.py").write_text(
+            dedent("""\
             from django.db import migrations, models
             import django_security_label.labels
 
@@ -130,8 +133,10 @@ class SqlMigrateRemovalTests(EnterContextMixin, TestCase):
                         index=django_security_label.labels.AnonMaskSecurityLabel(fields=["safe_text"], mask_function="dummy_name()", name="maskedcolumn_safe_text_idx"),
                     ),
                 ]
-        """))
-        (self.migrations_dir / "0002_remove_label.py").write_text(dedent("""\
+        """)
+        )
+        (self.migrations_dir / "0002_remove_label.py").write_text(
+            dedent("""\
             from django.db import migrations
 
             class Migration(migrations.Migration):
@@ -142,7 +147,8 @@ class SqlMigrateRemovalTests(EnterContextMixin, TestCase):
                         name="maskedcolumn_safe_text_idx",
                     ),
                 ]
-        """))
+        """)
+        )
 
     call_command = staticmethod(partial(run_command, "sqlmigrate"))
 
@@ -151,7 +157,7 @@ class SqlMigrateRemovalTests(EnterContextMixin, TestCase):
 
         self.assertEqual(returncode, 0)
         self.assertIn(
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"safe_text\" IS NULL",
+            'SECURITY LABEL FOR "anon" ON COLUMN "testapp_maskedcolumn"."safe_text" IS NULL',
             out,
         )
 
@@ -160,7 +166,7 @@ class SqlMigrateRemovalTests(EnterContextMixin, TestCase):
 
         self.assertEqual(returncode, 0)
         self.assertIn(
-            "SECURITY LABEL FOR \"anon\" ON COLUMN \"testapp_maskedcolumn\".\"safe_text\" "
+            'SECURITY LABEL FOR "anon" ON COLUMN "testapp_maskedcolumn"."safe_text" '
             "IS 'MASKED WITH FUNCTION anon.dummy_name()'",
             out,
         )

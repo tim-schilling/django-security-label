@@ -11,7 +11,9 @@ DATABASES = {
         "USER": os.environ.get("DB_USER", "django-security-label"),
         "PASSWORD": os.environ.get("DB_PASSWORD", "django-security-label"),
         "HOST": os.environ.get("DB_HOST", "localhost"),
-        "PORT": os.environ.get("DB_PORT", ""),
+        # Set the default to a non-specific postgres port since we need to install
+        # the anon provider
+        "PORT": os.environ.get("DB_PORT", "6432"),
     },
 }
 

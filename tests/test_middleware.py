@@ -103,7 +103,6 @@ class TestMaskedReadsMiddleware(TransactionTestCase):
             MaskedColumn.objects.filter(pk=self.test_record.pk).update(
                 safe_text="updated_via_queryset",
             )
-            return request
 
         middleware = MaskedReadsMiddleware(get_response)
         request = self.request_factory.get("/")

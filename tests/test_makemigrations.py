@@ -5,11 +5,10 @@ from textwrap import dedent
 
 from django.test import TestCase
 
-from tests.compat import EnterContextMixin
 from tests.utils import run_command, temp_migrations_module
 
 
-class MakeMigrationsTests(EnterContextMixin, TestCase):
+class MakeMigrationsTests(TestCase):
     def setUp(self):
         self.migrations_dir = self.enterContext(temp_migrations_module())
 
@@ -50,7 +49,7 @@ class MakeMigrationsTests(EnterContextMixin, TestCase):
         )
 
 
-class MakeMigrationsRemovalTests(EnterContextMixin, TestCase):
+class MakeMigrationsRemovalTests(TestCase):
     def setUp(self):
         self.migrations_dir = self.enterContext(temp_migrations_module())
         (self.migrations_dir / "__init__.py").write_text("")

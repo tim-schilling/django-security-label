@@ -23,8 +23,10 @@ class ColumnSecurityLabel(models.Index):
         return "SECURITY LABEL FOR %(provider)s ON COLUMN %(table)s.%(column)s IS NULL"
 
     def create_sql(self, model, schema_editor, using="", **kwargs):
+        database_name = schema_editor.connection.settings_dict["NAME"]
         return Statement(
             self._get_security_label(),
+            database=schema_editor.quote_name(database_name),
             table=Table(model._meta.db_table, schema_editor.quote_name),
             column=schema_editor.quote_name(
                 model._meta.get_field(self.fields[0]).column
@@ -48,6 +50,11 @@ class ColumnSecurityLabel(models.Index):
         kwargs["provider"] = self.provider
         kwargs["string_literal"] = self.string_literal
         return path, expressions, kwargs
+
+
+class AnonymizeColumn(ColumnSecurityLabel):
+    def __init__(self, *args, provider="anon", **kwargs):
+        super().__init__(*args, provider=provider, **kwargs)
 
 
 class MaskFunction(StrEnum):
@@ -127,17 +134,19 @@ class MaskFunction(StrEnum):
     dummy_zip_code = "dummy_zip_code()"
 
 
-class AnonMaskSecurityLabel(ColumnSecurityLabel):
-    def __init__(self, *args, mask_function: str, **kwargs):
+class MaskColumn(AnonymizeColumn):
+    def __init__(self, *args, policy="anon", mask_function: str, **kwargs):
+        self.policy = policy
         self.mask_function = mask_function
         kwargs.pop("string_literal", None)
         kwargs.pop("provider", None)
-        string_literal = f"MASKED WITH FUNCTION anon.{mask_function}"
+        string_literal = f"MASKED WITH FUNCTION anon.{self.mask_function}"
         super().__init__(
-            *args, provider="anon", string_literal=string_literal, **kwargs
+            *args, provider=self.policy, string_literal=string_literal, **kwargs
         )
 
     def deconstruct(self):
         (path, expressions, kwargs) = super().deconstruct()
+        kwargs["policy"] = self.policy
         kwargs["mask_function"] = self.mask_function
         return path, expressions, kwargs

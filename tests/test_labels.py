@@ -7,8 +7,8 @@ from django.db import connection
 from django.test import TransactionTestCase
 
 from django_security_label.labels import (
-    AnonMaskSecurityLabel,
     ColumnSecurityLabel,
+    MaskColumn,
     MaskFunction,
 )
 
@@ -131,9 +131,9 @@ class TestMaskFunction(TestCase):
         self.assertEqual(str(MaskFunction.dummy_name), "dummy_name()")
 
 
-class TestAnonMaskSecurityLabel(TestCase):
+class TestMaskColumn(TestCase):
     def test_init(self):
-        label = AnonMaskSecurityLabel(
+        label = MaskColumn(
             fields=["text"],
             mask_function=MaskFunction.dummy_name,
         )
@@ -142,7 +142,7 @@ class TestAnonMaskSecurityLabel(TestCase):
         self.assertEqual(label.fields, ["text"])
 
     def test_init_ignores_provider_and_string_literal_kwargs(self):
-        label = AnonMaskSecurityLabel(
+        label = MaskColumn(
             fields=["text"],
             mask_function=MaskFunction.dummy_name,
             provider="ignored_provider",
@@ -152,7 +152,7 @@ class TestAnonMaskSecurityLabel(TestCase):
         self.assertEqual(label.string_literal, "MASKED WITH FUNCTION anon.dummy_name()")
 
     def test_with_mask_function_string(self):
-        label = AnonMaskSecurityLabel(
+        label = MaskColumn(
             fields=["text"],
             mask_function="custom_mask()",
         )
@@ -162,7 +162,7 @@ class TestAnonMaskSecurityLabel(TestCase):
 
     def test_single_field_validation(self):
         with self.assertRaisesRegex(ValueError, "must be used with exactly one field"):
-            AnonMaskSecurityLabel(
+            MaskColumn(
                 fields=["field1", "field2"],
                 mask_function=MaskFunction.dummy_name,
             )

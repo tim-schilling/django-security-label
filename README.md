@@ -56,15 +56,15 @@ pip install django-security-label
           # Defining any security labels will prevent any changes to the table
           # when masking is enabled.
           indexes = [
-              labels.AnonMaskSecurityLabel(
+              labels.MaskColumn(
                   fields=["text"], mask_function=labels.MaskFunction.dummy_catchphrase
               ),
-              labels.ColumnSecurityLabel(
+              labels.AnonymizeColumn(
                   fields=["confidential"],
                   provider="anon",
                   string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$",
               ),
-              labels.ColumnSecurityLabel(
+              labels.AnonymizeColumn(
                   fields=["random_int"],
                   provider="anon",
                   string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)",
@@ -80,6 +80,7 @@ pip install django-security-label
   The dependency on ``("django_security_label", "0001_initial")`` will ensure that your security labels will be applied after the anon provider is installed.
 
   Example migration file:
+
   ```python
   from django.db import migrations, models
   import django_security_label.labels
@@ -111,7 +112,7 @@ pip install django-security-label
               ],
               options={
                   "indexes": [
-                      django_security_label.labels.AnonMaskSecurityLabel(
+                      django_security_label.labels.MaskColumn(
                           fields=["text"],
                           mask_function=django_security_label.labels.MaskFunction[
                               "dummy_catchphrase"
@@ -120,13 +121,13 @@ pip install django-security-label
                           provider="anon",
                           string_literal="MASKED WITH FUNCTION anon.dummy_catchphrase()",
                       ),
-                      django_security_label.labels.ColumnSecurityLabel(
+                      django_security_label.labels.AnonymizeColumn(
                           fields=["confidential"],
                           name="mymodel_confide_030817_idx",
                           provider="anon",
                           string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$",
                       ),
-                      django_security_label.labels.ColumnSecurityLabel(
+                      django_security_label.labels.AnonymizeColumn(
                           fields=["random_int"],
                           name="mymodel_random__45b12e_idx",
                           provider="anon",
@@ -194,7 +195,7 @@ class AnonymousOnlyMaskedReadsMiddleware:
         return response
 ```
 
-### Anonymizer functions
+### Masking functions
 
 The PostgreSQL Anonymizer provider [includes dozens of functions](https://postgresql-anonymizer.readthedocs.io/en/stable/masking_functions/).
 
@@ -203,15 +204,13 @@ You can use a predefined function such as ``fake_email`` the following:
 ```python
 from django_security_label import labels
 
-labels.AnonMaskSecurityLabel(
-    fields=["email"], mask_function=labels.MaskFunction.fake_email
-)
+labels.MaskColumn(fields=["email"], mask_function=labels.MaskFunction.fake_email)
 ```
 
 You can also define the [string literal portion of the ``SECURITY LABEL``](https://www.postgresql.org/docs/current/sql-security-label.html) with the following:
 
 ```python
-labels.ColumnSecurityLabel(
+labels.AnonymizeColumn(
     fields=["confidential"],
     provider="anon",
     string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$",

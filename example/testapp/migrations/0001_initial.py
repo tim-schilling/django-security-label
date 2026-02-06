@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "indexes": [
-                    django_security_label.labels.AnonMaskSecurityLabel(
+                    django_security_label.labels.MaskColumn(
                         fields=["text"],
                         mask_function=django_security_label.labels.MaskFunction[
                             "dummy_catchphrase"
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                         provider="anon",
                         string_literal="MASKED WITH FUNCTION anon.dummy_catchphrase()",
                     ),
-                    django_security_label.labels.AnonMaskSecurityLabel(
+                    django_security_label.labels.MaskColumn(
                         fields=["uuid"],
                         mask_function=django_security_label.labels.MaskFunction[
                             "dummy_uuidv4"
@@ -53,13 +53,13 @@ class Migration(migrations.Migration):
                         provider="anon",
                         string_literal="MASKED WITH FUNCTION anon.dummy_uuidv4()",
                     ),
-                    django_security_label.labels.ColumnSecurityLabel(
+                    django_security_label.labels.AnonymizeColumn(
                         fields=["confidential"],
                         name="testapp_mas_confide_030817_idx",
                         provider="anon",
                         string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$",
                     ),
-                    django_security_label.labels.ColumnSecurityLabel(
+                    django_security_label.labels.AnonymizeColumn(
                         fields=["random_int"],
                         name="testapp_mas_random__45b12e_idx",
                         provider="anon",

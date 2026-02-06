@@ -35,19 +35,19 @@ class SqlMigrateTests(TestCase):
                     ),
                     migrations.AddIndex(
                         model_name="maskedcolumn",
-                        index=django_security_label.labels.AnonMaskSecurityLabel(fields=["text"], mask_function="dummy_catchphrase()", name="maskedcolumn_text_idx"),
+                        index=django_security_label.labels.MaskColumn(fields=["text"], policy="anon", mask_function="dummy_catchphrase()", name="maskedcolumn_text_idx"),
                     ),
                     migrations.AddIndex(
                         model_name="maskedcolumn",
-                        index=django_security_label.labels.AnonMaskSecurityLabel(fields=["uuid"], mask_function="dummy_uuidv4()", name="maskedcolumn_uuid_idx"),
+                        index=django_security_label.labels.MaskColumn(fields=["uuid"], policy="anon", mask_function="dummy_uuidv4()", name="maskedcolumn_uuid_idx"),
                     ),
                     migrations.AddIndex(
                         model_name="maskedcolumn",
-                        index=django_security_label.labels.ColumnSecurityLabel(fields=["confidential"], provider="anon", string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$", name="maskedcolumn_confidential_idx"),
+                        index=django_security_label.labels.AnonymizeColumn(fields=["confidential"], provider="anon", string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$", name="maskedcolumn_confidential_idx"),
                     ),
                     migrations.AddIndex(
                         model_name="maskedcolumn",
-                        index=django_security_label.labels.ColumnSecurityLabel(fields=["random_int"], provider="anon", string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)", name="maskedcolumn_random_int_idx"),
+                        index=django_security_label.labels.AnonymizeColumn(fields=["random_int"], provider="anon", string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)", name="maskedcolumn_random_int_idx"),
                     ),
                 ]
         """)
@@ -129,7 +129,7 @@ class SqlMigrateRemovalTests(TestCase):
                     ),
                     migrations.AddIndex(
                         model_name="maskedcolumn",
-                        index=django_security_label.labels.AnonMaskSecurityLabel(fields=["safe_text"], mask_function="dummy_name()", name="maskedcolumn_safe_text_idx"),
+                        index=django_security_label.labels.MaskColumn(fields=["safe_text"], policy="anon", mask_function="dummy_name()", name="maskedcolumn_safe_text_idx"),
                     ),
                 ]
         """)

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from django.db import connection
-from django.db.migrations.operations.base import OperationCategory
 from django.test import TransactionTestCase
 
+from django_security_label import compat
 from django_security_label.operations import CreateRole, CreateSecurityLabelForRole
 
 
@@ -15,7 +15,7 @@ class TestCreateRole(TransactionTestCase):
 
     def test_class_attributes(self):
         self.assertTrue(CreateRole.reversible)
-        self.assertEqual(CreateRole.category, OperationCategory.ADDITION)
+        self.assertEqual(CreateRole.category, compat.ADDITION)
 
     def test_database_forwards(self):
         op = CreateRole("test_role")
@@ -66,9 +66,7 @@ class TestCreateSecurityLabelForRole(TransactionTestCase):
 
     def test_class_attributes(self):
         self.assertTrue(CreateSecurityLabelForRole.reversible)
-        self.assertEqual(
-            CreateSecurityLabelForRole.category, OperationCategory.ADDITION
-        )
+        self.assertEqual(CreateSecurityLabelForRole.category, compat.ADDITION)
 
     def test_database_forwards_postgresql(self):
         op = CreateSecurityLabelForRole(

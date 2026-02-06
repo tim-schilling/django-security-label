@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from django.db.migrations.operations.base import Operation, OperationCategory
+from django.db.migrations.operations.base import Operation
+
+from django_security_label import compat
 
 
 class CreateRole(Operation):
     reversible = True
-    category = OperationCategory.ADDITION
+    category = compat.ADDITION
 
     def __init__(self, name, inherit_from_db_user=False):
         """
@@ -41,7 +43,7 @@ class CreateRole(Operation):
 
 class CreateSecurityLabelForRole(Operation):
     reversible = True
-    category = OperationCategory.ADDITION
+    category = compat.ADDITION
 
     def __init__(self, *, provider, role, string_literal):
         self.provider = provider

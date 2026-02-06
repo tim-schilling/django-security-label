@@ -15,20 +15,18 @@ class MaskedColumn(models.Model):
 
     class Meta:
         indexes = [
-            labels.AnonMaskSecurityLabel(
+            labels.MaskColumn(
                 fields=["text"], mask_function=labels.MaskFunction.dummy_catchphrase
             ),
-            labels.AnonMaskSecurityLabel(
+            labels.MaskColumn(
                 fields=["uuid"], mask_function=labels.MaskFunction.dummy_uuidv4
             ),
-            labels.ColumnSecurityLabel(
+            labels.AnonymizeColumn(
                 fields=["confidential"],
-                provider="anon",
                 string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$",
             ),
-            labels.ColumnSecurityLabel(
+            labels.AnonymizeColumn(
                 fields=["random_int"],
-                provider="anon",
                 string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)",
             ),
         ]

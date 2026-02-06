@@ -3,6 +3,9 @@ from __future__ import annotations
 from unittest import TestCase
 from unittest.mock import Mock
 
+from django.db import connection
+from django.test import TransactionTestCase
+
 from django_security_label.labels import (
     AnonMaskSecurityLabel,
     ColumnSecurityLabel,
@@ -10,7 +13,7 @@ from django_security_label.labels import (
 )
 
 
-class TestColumnSecurityLabel(TestCase):
+class TestColumnSecurityLabel(TransactionTestCase):
     def test_init_with_single_field(self):
         label = ColumnSecurityLabel(
             fields=["text"],
@@ -72,10 +75,8 @@ class TestColumnSecurityLabel(TestCase):
         mock_field.column = "text_column"
         mock_model._meta.get_field.return_value = mock_field
 
-        mock_editor = Mock()
-        mock_editor.quote_name = lambda x: f'"{x}"'
-
-        statement = label.create_sql(mock_model, mock_editor)
+        with connection.schema_editor(collect_sql=True) as schema_editor:
+            statement = label.create_sql(mock_model, schema_editor)
 
         self.assertEqual(
             str(statement),
@@ -96,10 +97,8 @@ class TestColumnSecurityLabel(TestCase):
         mock_field.column = "text_column"
         mock_model._meta.get_field.return_value = mock_field
 
-        mock_editor = Mock()
-        mock_editor.quote_name = lambda x: f'"{x}"'
-
-        statement = label.remove_sql(mock_model, mock_editor)
+        with connection.schema_editor(collect_sql=True) as schema_editor:
+            statement = label.remove_sql(mock_model, schema_editor)
 
         self.assertEqual(
             str(statement),

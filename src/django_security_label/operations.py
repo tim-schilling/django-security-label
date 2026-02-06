@@ -21,16 +21,22 @@ class CreateRole(Operation):
         pass
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
-        schema_editor.execute(f"DROP ROLE IF EXISTS {self.name}")
-        schema_editor.execute(f"CREATE ROLE {self.name} NOLOGIN")
+        schema_editor.execute(
+            f"DROP ROLE IF EXISTS {schema_editor.quote_name(self.name)}"
+        )
+        schema_editor.execute(
+            f"CREATE ROLE {schema_editor.quote_name(self.name)} NOLOGIN"
+        )
         if self.inherit_from_db_user:
             user = schema_editor.connection.settings_dict["USER"]
             schema_editor.execute(
-                f"GRANT {schema_editor.quote_name(user)} to {self.name} WITH INHERIT TRUE"
+                f"GRANT {schema_editor.quote_name(user)} TO {schema_editor.quote_name(self.name)} WITH INHERIT TRUE"
             )
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
-        schema_editor.execute(f"DROP ROLE IF EXISTS {self.name}")
+        schema_editor.execute(
+            f"DROP ROLE IF EXISTS {schema_editor.quote_name(self.name)}"
+        )
 
 
 class CreateSecurityLabelForRole(Operation):

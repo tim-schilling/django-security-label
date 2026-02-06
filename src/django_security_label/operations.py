@@ -62,7 +62,7 @@ class CreateSecurityLabelForRole(Operation):
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         schema_editor.execute(
-            f"SECURITY LABEL FOR anon ON ROLE {schema_editor.quote_name(self.role)} IS NULL"
+            f"SECURITY LABEL FOR {self.provider} ON ROLE {schema_editor.quote_name(self.role)} IS NULL"
         )
 
     def describe(self):

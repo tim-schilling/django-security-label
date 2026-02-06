@@ -16,3 +16,9 @@ uv run tox
 # Or if you have tox installed as a tool
 tox
 ```
+
+To get code coverage for a single run, use:
+
+```bash
+tox -e py313-django52,coverage
+```

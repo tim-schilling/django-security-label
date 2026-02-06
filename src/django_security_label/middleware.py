@@ -3,10 +3,16 @@ from __future__ import annotations
 from django.db import InternalError, connection
 from django.http import HttpRequest
 
+from django_security_label import constants
+
+
+def set_session_role(role):
+    with connection.cursor() as cursor:
+        cursor.execute(f"SET SESSION ROLE {connection.ops.quote_name(role)};")
+
 
 def enable_masked_reads():
-    with connection.cursor() as cursor:
-        cursor.execute("SET SESSION ROLE dsl_masked_reader;")
+    set_session_role(constants.MASKED_READER_ROLE)
 
 
 def disable_masked_reads():

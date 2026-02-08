@@ -8,6 +8,12 @@ This package provides tools for applying and managing security labels in Postgre
 
 This was created with [Jay Miller](https://kjaymiller.com/) for the ["Elephant in the Room" series](https://www.youtube.com/watch?v=oSDPKT5bbuw&list=PLo6PI-0mPVLszndcJ86JStMHLibO2BHdc). The inspiration for the project was from his blog post, ["Using PostgreSQL Anonymizer to safely share data with LLMs"](https://aiven.io/blog/using-postgresql-anonymizer-to-safely-share-data-with-llms)
 
+## Prerequisites
+
+This package requires the [PostgreSQL Anonymizer](https://postgresql-anonymizer.readthedocs.io) extension to be installed on your database.
+
+Please follow the [installation instructions](https://postgresql-anonymizer.readthedocs.io/en/stable/INSTALL/) for your environment.
+
 ## Installation
 
 ```bash

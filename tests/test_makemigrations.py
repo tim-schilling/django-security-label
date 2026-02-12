@@ -40,6 +40,10 @@ class MakeMigrationsTests(TestCase):
             migration_content,
         )
         self.assertIn(
+            "django_security_label.labels.AnonymizeColumn(fields=['uuid'], name='testapp_masked_column_uuid_analysts', provider='analysts', string_literal='MASKED WITH VALUE $$00000000-0000-0000-0000-000000000000$$')",
+            migration_content,
+        )
+        self.assertIn(
             "django_security_label.labels.AnonymizeColumn(fields=['confidential'], name='testapp_mas_confide_030817_idx', provider='anon', string_literal='MASKED WITH VALUE $$CONFIDENTIAL$$')",
             migration_content,
         )
@@ -77,22 +81,6 @@ class MakeMigrationsRemovalTests(TestCase):
                     migrations.AddIndex(
                         model_name="maskedcolumn",
                         index=django_security_label.labels.MaskColumn(fields=["safe_text"], mask_function="dummy_catchphrase()", name="maskedcolumn_safe_text_idx"),
-                    ),
-                    migrations.AddIndex(
-                        model_name="maskedcolumn",
-                        index=django_security_label.labels.MaskColumn(fields=["text"], mask_function="dummy_catchphrase()", name="maskedcolumn_text_idx"),
-                    ),
-                    migrations.AddIndex(
-                        model_name="maskedcolumn",
-                        index=django_security_label.labels.MaskColumn(fields=["uuid"], mask_function="dummy_uuidv4()", name="maskedcolumn_uuid_idx"),
-                    ),
-                    migrations.AddIndex(
-                        model_name="maskedcolumn",
-                        index=django_security_label.labels.AnonymizeColumn(fields=["confidential"], provider="anon", string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$", name="maskedcolumn_confidential_idx"),
-                    ),
-                    migrations.AddIndex(
-                        model_name="maskedcolumn",
-                        index=django_security_label.labels.AnonymizeColumn(fields=["random_int"], provider="anon", string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)", name="maskedcolumn_random_int_idx"),
                     ),
                 ]
         """)

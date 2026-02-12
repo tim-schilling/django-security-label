@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from django.contrib.postgres.operations import CreateExtension
 from django.db import migrations
 
 from django_security_label import constants
@@ -25,9 +24,6 @@ class Migration(migrations.Migration):
     initial = True
     dependencies = []
     operations = [
-        migrations.RunPython(preload_anon, migrations.RunPython.noop),
-        CreateExtension("anon"),
-        migrations.RunSQL("SELECT anon.init();", reverse_sql=migrations.RunSQL.noop),
         migrations.RunPython(set_dynamic_masking, migrations.RunPython.noop),
         CreateRole(constants.MASKED_READER_ROLE, inherit_from_db_user=True),
         CreateSecurityLabelForRole(

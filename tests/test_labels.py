@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from unittest import TestCase
 from unittest.mock import Mock
 
 from django.db import connection
-from django.test import TransactionTestCase
+from django.test import TestCase
 
 from django_security_label.labels import (
     ColumnSecurityLabel,
@@ -13,7 +12,7 @@ from django_security_label.labels import (
 )
 
 
-class TestColumnSecurityLabel(TransactionTestCase):
+class TestColumnSecurityLabel(TestCase):
     def test_init_with_single_field(self):
         label = ColumnSecurityLabel(
             fields=["text"],

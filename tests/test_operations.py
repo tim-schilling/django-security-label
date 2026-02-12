@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from django.db import connection
-from django.test import TransactionTestCase
+from django.test import TestCase
 
 from django_security_label import compat
 from django_security_label.operations import CreateRole, CreateSecurityLabelForRole
 
 
-class TestCreateRole(TransactionTestCase):
+class TestCreateRole(TestCase):
     def test_init(self):
         op = CreateRole("test_role", inherit_from_db_user=True)
         self.assertEqual(op.name, "test_role")
@@ -55,7 +55,7 @@ class TestCreateRole(TransactionTestCase):
             )
 
 
-class TestCreateSecurityLabelForRole(TransactionTestCase):
+class TestCreateSecurityLabelForRole(TestCase):
     def test_init(self):
         op = CreateSecurityLabelForRole(
             provider="anon", role="masked_reader", string_literal="MASKED"

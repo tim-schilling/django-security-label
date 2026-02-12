@@ -2,29 +2,36 @@
 
 [Full report](https://htmlpreview.github.io/?https://github.com/tim-schilling/django-security-label/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
-| Name                                                    |    Stmts |     Miss |   Branch |   BrPart |    Cover |   Missing |
-|-------------------------------------------------------- | -------: | -------: | -------: | -------: | -------: | --------: |
-| src/django\_security\_label/\_\_init\_\_.py             |        3 |        0 |        0 |        0 |     100% |           |
-| src/django\_security\_label/apps.py                     |        6 |        0 |        0 |        0 |     100% |           |
-| src/django\_security\_label/compat.py                   |        6 |        0 |        2 |        0 |     100% |           |
-| src/django\_security\_label/constants.py                |        2 |        0 |        0 |        0 |     100% |           |
-| src/django\_security\_label/labels.py                   |      110 |        0 |        2 |        0 |     100% |           |
-| src/django\_security\_label/middleware.py               |       29 |        0 |        2 |        0 |     100% |           |
-| src/django\_security\_label/migrations/0001\_initial.py |       15 |        0 |        0 |        0 |     100% |           |
-| src/django\_security\_label/migrations/\_\_init\_\_.py  |        0 |        0 |        0 |        0 |     100% |           |
-| src/django\_security\_label/operations.py               |       39 |        0 |        4 |        0 |     100% |           |
-| tests/\_\_init\_\_.py                                   |        0 |        0 |        0 |        0 |     100% |           |
-| tests/settings.py                                       |        7 |        0 |        0 |        0 |     100% |           |
-| tests/test\_labels.py                                   |       76 |        0 |        0 |        0 |     100% |           |
-| tests/test\_makemigrations.py                           |       37 |        0 |        0 |        0 |     100% |           |
-| tests/test\_middleware.py                               |       69 |        0 |        0 |        0 |     100% |           |
-| tests/test\_operations.py                               |       63 |        0 |        0 |        0 |     100% |           |
-| tests/test\_sqlmigrate.py                               |       40 |        0 |        0 |        0 |     100% |           |
-| tests/testapp/\_\_init\_\_.py                           |        0 |        0 |        0 |        0 |     100% |           |
-| tests/testapp/apps.py                                   |        5 |        0 |        0 |        0 |     100% |           |
-| tests/testapp/models.py                                 |       12 |        0 |        0 |        0 |     100% |           |
-| tests/utils.py                                          |       30 |        0 |        0 |        0 |     100% |           |
-| **TOTAL**                                               |  **549** |    **0** |   **10** |    **0** | **100%** |           |
+| Name                                                                            |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
+|-------------------------------------------------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
+| src/django\_security\_label/\_\_init\_\_.py                                     |        3 |        0 |        0 |        0 |    100% |           |
+| src/django\_security\_label/apps.py                                             |       38 |        0 |       14 |        2 |     96% |22->21, 59->64 |
+| src/django\_security\_label/compat.py                                           |        6 |        0 |        2 |        0 |    100% |           |
+| src/django\_security\_label/constants.py                                        |        2 |        0 |        0 |        0 |    100% |           |
+| src/django\_security\_label/labels.py                                           |      116 |        0 |        2 |        0 |    100% |           |
+| src/django\_security\_label/management/\_\_init\_\_.py                          |        0 |        0 |        0 |        0 |    100% |           |
+| src/django\_security\_label/management/commands/\_\_init\_\_.py                 |        0 |        0 |        0 |        0 |    100% |           |
+| src/django\_security\_label/management/commands/create\_anonymizer\_policies.py |       16 |        0 |        0 |        0 |    100% |           |
+| src/django\_security\_label/middleware.py                                       |       29 |        0 |        2 |        0 |    100% |           |
+| src/django\_security\_label/migrations/0001\_initial.py                         |       14 |        2 |        0 |        0 |     86% |     17-18 |
+| src/django\_security\_label/migrations/\_\_init\_\_.py                          |        0 |        0 |        0 |        0 |    100% |           |
+| src/django\_security\_label/operations.py                                       |       39 |        0 |        4 |        0 |    100% |           |
+| tests/\_\_init\_\_.py                                                           |        0 |        0 |        0 |        0 |    100% |           |
+| tests/settings.py                                                               |        7 |        0 |        0 |        0 |    100% |           |
+| tests/test\_create\_anonymizer\_policies.py                                     |       42 |        1 |        4 |        1 |     96% |        22 |
+| tests/test\_labels.py                                                           |       75 |        0 |        0 |        0 |    100% |           |
+| tests/test\_makemigrations.py                                                   |       38 |        0 |        0 |        0 |    100% |           |
+| tests/test\_middleware.py                                                       |       78 |        0 |        0 |        0 |    100% |           |
+| tests/test\_operations.py                                                       |       63 |        0 |        0 |        0 |    100% |           |
+| tests/test\_sqlmigrate.py                                                       |       40 |        0 |        0 |        0 |    100% |           |
+| tests/testapp/\_\_init\_\_.py                                                   |        0 |        0 |        0 |        0 |    100% |           |
+| tests/testapp/apps.py                                                           |        5 |        0 |        0 |        0 |    100% |           |
+| tests/testapp/middleware.py                                                     |       17 |        3 |        2 |        0 |     84% |     21-23 |
+| tests/testapp/migrations/0001\_initial.py                                       |        8 |        0 |        0 |        0 |    100% |           |
+| tests/testapp/migrations/\_\_init\_\_.py                                        |        0 |        0 |        0 |        0 |    100% |           |
+| tests/testapp/models.py                                                         |       12 |        0 |        0 |        0 |    100% |           |
+| tests/utils.py                                                                  |       37 |        0 |        0 |        0 |    100% |           |
+| **TOTAL**                                                                       |  **685** |    **6** |   **30** |    **3** | **99%** |           |
 
 
 ## Setup coverage badge

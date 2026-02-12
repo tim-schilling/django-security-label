@@ -12,7 +12,8 @@ from pathlib import Path
 from textwrap import dedent
 
 from django.core.management import call_command
-from django.test import override_settings
+from django.db import connection
+from django.test import TransactionTestCase, override_settings
 
 
 @contextmanager
@@ -52,3 +53,12 @@ empty_migration = dedent(
         pass
     """
 )
+
+
+class AnonTransactionTestCase(TransactionTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Force a re-connection to reload the anon objects.
+        connection.close()
+        connection.ensure_connection()

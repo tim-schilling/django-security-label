@@ -22,6 +22,12 @@ class MaskedColumn(models.Model):
                 fields=["uuid"], mask_function=labels.MaskFunction.dummy_uuidv4
             ),
             labels.AnonymizeColumn(
+                fields=["uuid"],
+                provider="analysts",
+                string_literal="MASKED WITH VALUE $$00000000-0000-0000-0000-000000000000$$",
+                name="testapp_masked_column_uuid_analysts",
+            ),
+            labels.AnonymizeColumn(
                 fields=["confidential"],
                 string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$",
             ),

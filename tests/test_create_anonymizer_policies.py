@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from django.db import connection
-from django.test import TransactionTestCase
+from django.test import TestCase
 
 from tests.utils import run_command
 
 
-class TestCreateAnonymizerPolicies(TransactionTestCase):
+class TestCreateAnonymizerPolicies(TestCase):
     def _get_masking_policies(self):
         with connection.cursor() as cursor:
             db_name = connection.settings_dict["NAME"]

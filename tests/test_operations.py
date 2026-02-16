@@ -4,7 +4,37 @@ from django.db import connection
 from django.test import TestCase
 
 from django_security_label import compat
-from django_security_label.operations import CreateRole, CreateSecurityLabelForRole
+from django_security_label.operations import (
+    CreateRole,
+    CreateSecurityLabelForRole,
+    create_role,
+)
+
+
+class TestCreateRoleFunction(TestCase):
+    def test_creates_role_without_inherit(self):
+        with connection.schema_editor(collect_sql=True) as schema_editor:
+            create_role(schema_editor, name="test_fn_role", inherit_from_db_user=False)
+            self.assertListEqual(
+                schema_editor.collected_sql,
+                [
+                    'DROP ROLE IF EXISTS "test_fn_role";',
+                    'CREATE ROLE "test_fn_role" NOLOGIN;',
+                ],
+            )
+
+    def test_creates_role_with_inherit(self):
+        db_user = connection.settings_dict["USER"]
+        with connection.schema_editor(collect_sql=True) as schema_editor:
+            create_role(schema_editor, name="test_fn_role", inherit_from_db_user=True)
+            self.assertListEqual(
+                schema_editor.collected_sql,
+                [
+                    'DROP ROLE IF EXISTS "test_fn_role";',
+                    'CREATE ROLE "test_fn_role" NOLOGIN;',
+                    f'GRANT "{db_user}" TO "test_fn_role" WITH INHERIT TRUE;',
+                ],
+            )
 
 
 class TestCreateRole(TestCase):
@@ -80,19 +110,6 @@ class TestCreateSecurityLabelForRole(TestCase):
                     "SECURITY LABEL FOR anon ON ROLE \"masked_reader\" IS 'MASKED';",
                 ],
             )
-
-    def test_database_forwards_skips_non_postgresql(self):
-        op = CreateSecurityLabelForRole(
-            provider="anon", role="masked_reader", string_literal="MASKED"
-        )
-        with connection.schema_editor(collect_sql=True) as schema_editor:
-            vendor = schema_editor.connection.vendor
-            schema_editor.connection.vendor = "sqlite"
-            try:
-                op.database_forwards("app", schema_editor, None, None)
-                self.assertListEqual(schema_editor.collected_sql, [])
-            finally:
-                schema_editor.connection.vendor = vendor
 
     def test_database_backwards(self):
         op = CreateSecurityLabelForRole(

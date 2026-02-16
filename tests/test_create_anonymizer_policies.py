@@ -19,7 +19,7 @@ class TestCreateAnonymizerPolicies(TestCase):
             for (setting,) in cursor.fetchall():
                 if setting.startswith("anon.masking_policies="):
                     return setting
-            return None
+            return None  # pragma: no-cover
 
     def _clear_masking_policies(self):
         with connection.cursor() as cursor:

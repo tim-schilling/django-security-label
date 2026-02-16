@@ -165,3 +165,32 @@ class TestMaskColumn(TestCase):
                 fields=["field1", "field2"],
                 mask_function=MaskFunction.dummy_name,
             )
+
+    def test_deconstruct_with_policy(self):
+        label = MaskColumn(
+            fields=["text"],
+            policy="test_provider",
+            mask_function="mask!",
+        )
+        path, expressions, kwargs = label.deconstruct()
+
+        self.assertEqual(path, "django_security_label.labels.MaskColumn")
+        self.assertEqual(expressions, ())
+        self.assertEqual(kwargs["fields"], ["text"])
+        self.assertEqual(kwargs["policy"], "test_provider")
+        self.assertEqual(kwargs["provider"], "test_provider")
+        self.assertEqual(kwargs["mask_function"], "mask!")
+
+    def test_deconstruct_with_mask_function(self):
+        label = MaskColumn(
+            fields=["text"],
+            mask_function=MaskFunction.dummy_name,
+        )
+        path, expressions, kwargs = label.deconstruct()
+
+        self.assertEqual(path, "django_security_label.labels.MaskColumn")
+        self.assertEqual(expressions, ())
+        self.assertEqual(kwargs["fields"], ["text"])
+        self.assertEqual(kwargs["policy"], "anon")
+        self.assertEqual(kwargs["provider"], "anon")
+        self.assertEqual(kwargs["mask_function"], MaskFunction.dummy_name)

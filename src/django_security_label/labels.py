@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import Any
 
 from django.db import models
 from django.db.backends.ddl_references import Statement, Table
@@ -135,7 +136,13 @@ class MaskFunction(StrEnum):
 
 
 class MaskColumn(AnonymizeColumn):
-    def __init__(self, *args, policy="anon", mask_function: str, **kwargs):
+    def __init__(
+        self,
+        *args,
+        policy="anon",
+        mask_function: str | MaskFunction | type[MaskFunction[Any]],
+        **kwargs,
+    ):
         self.policy = policy
         self.mask_function = mask_function
         kwargs.pop("string_literal", None)

@@ -16,13 +16,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_security_label",
-    "testapp",
+    "core",
 ]
 
 MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django_security_label.middleware.MaskedReadsMiddleware",
+    "django_security_label.middleware.GroupMaskingMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
 ]
 
@@ -58,3 +58,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 USE_TZ = True
 
 STATIC_URL = "/static/"
+
+# Map group names to database roles
+SECURITY_LABEL_GROUPS_TO_ROLES: list[tuple[str, str]] = [
+    ("Analysts", "dsl_analysts"),
+    ("Developers", "dsl_devs"),
+]

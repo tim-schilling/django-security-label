@@ -1,5 +1,5 @@
 site_name: Django Security Label
-site_description: Django support for PostgreSQL security labels
+site_description: Django support for PostgreSQL security labels, including anonymizing/masking data.
 repo_url: https://github.com/tim-schilling/django-security-label
 
 theme:

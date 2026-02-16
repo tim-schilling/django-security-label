@@ -1,3 +1,15 @@
+"""Security label definitions for model columns.
+
+Use these classes in a model's ``Meta.indexes`` to declare which columns
+should be masked and how.  Django will generate the corresponding
+``SECURITY LABEL`` SQL in migrations automatically.
+
+Subclass [ColumnSecurityLabel][django_security_label.labels.ColumnSecurityLabel]
+if you need a custom provider or masking strategy beyond what
+[AnonymizeColumn][django_security_label.labels.AnonymizeColumn] and
+[MaskColumn][django_security_label.labels.MaskColumn] provide.
+"""
+
 from __future__ import annotations
 
 from enum import StrEnum
@@ -8,6 +20,20 @@ from django.db.backends.ddl_references import Statement, Table
 
 
 class ColumnSecurityLabel(models.Index):
+    """Base class that maps a single model field to a PostgreSQL security label.
+
+    You normally won't use this directly — see
+    [AnonymizeColumn][django_security_label.labels.AnonymizeColumn] and
+    [MaskColumn][django_security_label.labels.MaskColumn] for convenient
+    defaults.  Subclass this if you need
+    a provider other than ``anon`` or a completely custom label format.
+
+    Args:
+        provider: The PostgreSQL Anonymizer provider name.
+        string_literal: The raw ``SECURITY LABEL … IS '<value>'`` payload.
+        fields: A single-element list with the field name to label.
+    """
+
     def __init__(self, *args, provider: str, string_literal: str, fields=(), **kwargs):
         self.provider = provider
         self.string_literal = string_literal
@@ -24,6 +50,7 @@ class ColumnSecurityLabel(models.Index):
         return "SECURITY LABEL FOR %(provider)s ON COLUMN %(table)s.%(column)s IS NULL"
 
     def create_sql(self, model, schema_editor, using="", **kwargs):
+        """Return the ``SECURITY LABEL`` SQL that applies the label."""
         database_name = schema_editor.connection.settings_dict["NAME"]
         return Statement(
             self._get_security_label(),
@@ -37,6 +64,7 @@ class ColumnSecurityLabel(models.Index):
         )
 
     def remove_sql(self, model, schema_editor, **kwargs):
+        """Return the SQL that removes the label (sets it to ``NULL``)."""
         return Statement(
             self._remove_security_label(),
             table=Table(model._meta.db_table, schema_editor.quote_name),
@@ -47,6 +75,7 @@ class ColumnSecurityLabel(models.Index):
         )
 
     def deconstruct(self):
+        """Serialize for migrations, including ``provider`` and ``string_literal``."""
         (path, expressions, kwargs) = super().deconstruct()
         kwargs["provider"] = self.provider
         kwargs["string_literal"] = self.string_literal
@@ -54,11 +83,32 @@ class ColumnSecurityLabel(models.Index):
 
 
 class AnonymizeColumn(ColumnSecurityLabel):
+    """A security label using the default ``anon`` provider.
+
+    Pass a ``string_literal`` such as
+    ``"MASKED WITH VALUE $$REDACTED$$"`` to control how the column is masked.
+
+    Args:
+        provider: Defaults to ``"anon"``.
+    """
+
     def __init__(self, *args, provider="anon", **kwargs):
         super().__init__(*args, provider=provider, **kwargs)
 
 
 class MaskFunction(StrEnum):
+    """Pre-defined PostgreSQL Anonymizer masking functions.
+
+    Each member maps to an ``anon.dummy_*()`` function.  Pass a member to
+    [MaskColumn][django_security_label.labels.MaskColumn] via
+    ``mask_function`` to use it::
+
+        MaskColumn(fields=["email"], mask_function=MaskFunction.fake_email)
+
+    See the full list in the
+    `PostgreSQL Anonymizer docs <https://postgresql-anonymizer.readthedocs.io/en/stable/masking_functions/>`_.
+    """
+
     dummy_bic = "dummy_bic()"
     dummy_bs = "dummy_bs()"
     dummy_bs_adj = "dummy_bs_adj()"
@@ -136,6 +186,22 @@ class MaskFunction(StrEnum):
 
 
 class MaskColumn(AnonymizeColumn):
+    """Apply a ``MASKED WITH FUNCTION`` label using a [MaskFunction][django_security_label.labels.MaskFunction] member.
+
+    This is the most common way to mask a column::
+
+        MaskColumn(fields=["name"], mask_function=MaskFunction.dummy_name)
+
+    You can also pass any string accepted by PostgreSQL Anonymizer as
+    ``mask_function`` for functions not listed in
+    [MaskFunction][django_security_label.labels.MaskFunction].
+
+    Args:
+        policy: The masking policy name. Defaults to ``"anon"``.
+        mask_function: A [MaskFunction][django_security_label.labels.MaskFunction]
+            member or a raw function string.
+    """
+
     def __init__(
         self,
         *args,
@@ -153,6 +219,7 @@ class MaskColumn(AnonymizeColumn):
         )
 
     def deconstruct(self):
+        """Serialize for migrations, including ``policy`` and ``mask_function``."""
         (path, expressions, kwargs) = super().deconstruct()
         kwargs["policy"] = self.policy
         kwargs["mask_function"] = self.mask_function

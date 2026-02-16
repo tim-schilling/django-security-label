@@ -1,3 +1,14 @@
+"""Migration operations and helpers for PostgreSQL roles and security labels.
+
+Use [CreateRole][django_security_label.operations.CreateRole] and
+[CreateSecurityLabelForRole][django_security_label.operations.CreateSecurityLabelForRole]
+in your Django migrations to manage PostgreSQL roles and their associated
+security labels.  The two standalone functions,
+[create_role][django_security_label.operations.create_role] and
+[create_security_label_for_role][django_security_label.operations.create_security_label_for_role],
+can also be called from management commands or ``RunPython`` operations.
+"""
+
 from __future__ import annotations
 
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
@@ -9,6 +20,14 @@ from django_security_label import compat
 def create_role(
     schema_editor: BaseDatabaseSchemaEditor, name: str, inherit_from_db_user: bool
 ) -> None:
+    """Create (or recreate) a PostgreSQL ``NOLOGIN`` role.
+
+    Args:
+        schema_editor: The active schema editor.
+        name: The role name to create.
+        inherit_from_db_user: When ``True``, grants the current database
+            user's permissions to the new role.
+    """
     schema_editor.execute(f"DROP ROLE IF EXISTS {schema_editor.quote_name(name)}")
     schema_editor.execute(f"CREATE ROLE {schema_editor.quote_name(name)} NOLOGIN")
     if inherit_from_db_user:
@@ -24,6 +43,14 @@ def create_security_label_for_role(
     role: str,
     string_literal: str | None,
 ) -> None:
+    """Apply (or remove) a security label on a PostgreSQL role.
+
+    Args:
+        schema_editor: The active schema editor.
+        provider: The provider name (e.g. ``"anon"``).
+        role: The target role name.
+        string_literal: The label value, or ``None`` to remove the label.
+    """
     if string_literal is not None:
         schema_editor.execute(
             f"SECURITY LABEL FOR {provider} ON ROLE {schema_editor.quote_name(role)} IS '{string_literal}'"
@@ -35,16 +62,20 @@ def create_security_label_for_role(
 
 
 class CreateRole(Operation):
+    """Migration operation that creates a PostgreSQL role.
+
+    Reversed by dropping the role.
+
+    Args:
+        name: The role name to create.
+        inherit_from_db_user: Whether the new role should inherit
+            permissions from the ``DATABASES`` user.
+    """
+
     reversible = True
     category = compat.ADDITION
 
     def __init__(self, name, inherit_from_db_user=False):
-        """
-
-        :param name: The name of the role to be created.
-        :param inherit_from_db_user: Whether the new role should inherit
-               permissions from the DATABASES user.
-        """
         self.name = name
         self.inherit_from_db_user = inherit_from_db_user
 
@@ -65,6 +96,16 @@ class CreateRole(Operation):
 
 
 class CreateSecurityLabelForRole(Operation):
+    """Migration operation that applies a security label to a PostgreSQL role.
+
+    Reversed by setting the label to ``NULL``.
+
+    Args:
+        provider: The provider name (e.g. ``"anon"``).
+        role: The target role name.
+        string_literal: The label value (e.g. ``"MASKED"``).
+    """
+
     reversible = True
     category = compat.ADDITION
 

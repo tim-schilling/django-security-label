@@ -1,3 +1,15 @@
+"""Register masking policies with PostgreSQL Anonymizer.
+
+Sets the ``anon.masking_policies`` database parameter via
+``ALTER DATABASE``.  This must be done before any ``SECURITY LABEL``
+referencing those policies can be applied.
+
+Usage::
+
+    python manage.py create_anonymizer_policies devs analysts
+    python manage.py create_anonymizer_policies anon --database other
+"""
+
 from __future__ import annotations
 
 from django.core.management.base import BaseCommand
@@ -5,6 +17,12 @@ from django.db import connections
 
 
 class Command(BaseCommand):
+    """Management command that registers one or more masking policies.
+
+    Runs ``ALTER DATABASE … SET anon.masking_policies TO '<policies>'``
+    on the target database.
+    """
+
     help = "Sets the anon.masking_policies on a database via ALTER DATABASE."
 
     def add_arguments(self, parser):

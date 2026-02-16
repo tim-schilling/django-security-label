@@ -1,13 +1,52 @@
 site_name: Django Security Label
 site_description: Django support for PostgreSQL security labels
-repo_url: https://github.com/yourusername/django-security-label
+repo_url: https://github.com/tim-schilling/django-security-label
 
 theme:
   name: material
+  features:
+    - content.code.copy
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths:
+            - src
+          options:
+            show_source: false
+            inherited_members: false
+            members_order: source
+            show_if_no_docstring: true
+            merge_init_into_class: true
+            show_root_heading: true
+            show_root_full_path: false
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
 
 nav:
   - Home: index.md
   - Installation: installation.md
-  - Usage: usage.md
-
-docs_dir: docs
+  - Tutorials:
+      - Getting Started: tutorials/getting-started.md
+  - How-To Guides:
+      - Customizing Masked Reads: how-to-guides/customizing-masked-reads.md
+      - Masking Functions: how-to-guides/masking-functions.md
+  - Reference: reference/
+  - Explanation:
+      - Overview: explanation/overview.md
+  - Contributing: contribute.md

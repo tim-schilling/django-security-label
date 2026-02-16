@@ -40,6 +40,14 @@ dev = [
   "pytest-django",
   "pytest-randomly",
 ]
+docs = [
+  "mkdocs",
+  "mkdocs-gen-files",
+  "mkdocs-literate-nav",
+  "mkdocs-material",
+  "mkdocstrings[python]",
+  "pygments",
+]
 django42 = [ "django>=4.2a1,<5; python_version>='3.8'" ]
 django50 = [ "django>=5a1,<5.1; python_version>='3.10'" ]
 django51 = [ "django>=5.1a1,<5.2; python_version>='3.10'" ]

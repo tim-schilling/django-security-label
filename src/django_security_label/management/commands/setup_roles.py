@@ -1,3 +1,16 @@
+"""Create Django groups and PostgreSQL roles from settings.
+
+Reads ``settings.SECURITY_LABEL_GROUPS_TO_ROLES`` — a list of
+``(group_name, db_role)`` tuples — and ensures each Django
+`Group` and corresponding PostgreSQL
+role exist.  Safe to run multiple times.
+
+Usage::
+
+    python manage.py setup_roles
+    python manage.py setup_roles --database other
+"""
+
 from __future__ import annotations
 
 from django.conf import settings
@@ -9,6 +22,17 @@ from django_security_label.operations import create_role, create_security_label_
 
 
 class Command(BaseCommand):
+    """Management command that provisions groups and roles.
+
+    For each entry in ``SECURITY_LABEL_GROUPS_TO_ROLES`` the command:
+
+    1. Creates the Django group (if it doesn't exist).
+    2. Creates a ``NOLOGIN`` PostgreSQL role that inherits from the
+       database user.
+    3. Applies a ``MASKED`` security label on the role so PostgreSQL
+       Anonymizer recognises it.
+    """
+
     help = (
         "Create Django groups and PostgreSQL roles from SECURITY_LABEL_GROUPS_TO_ROLES. "
         "Safe to run multiple times; existing roles and security labels are updated."
@@ -53,7 +77,7 @@ class Command(BaseCommand):
             self.stdout.write(f"Configured group '{group_name}' with role '{db_role}'")
 
     def _register_masking_policies(self, db_connection, db_roles):
-        """The providers must be registered before SECURITY LABEL can reference them."""
+        """Register providers with ``anon.masking_policies`` before applying labels."""
         db_name = db_connection.settings_dict["NAME"]
         quote_name = db_connection.ops.quote_name
         policies = ", ".join(sorted(db_roles))

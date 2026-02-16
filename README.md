@@ -12,7 +12,7 @@ This was created with [Jay Miller](https://kjaymiller.com/) for the ["Elephant i
 
 This package requires the [PostgreSQL Anonymizer](https://postgresql-anonymizer.readthedocs.io) extension to be installed on your database.
 
-Please follow the [installation instructions](https://postgresql-anonymizer.readthedocs.io/en/stable/INSTALL/) for your environment.
+Please follow the [installation instructions](https://postgresql-anonymizer.readthedocs.io/en/stable/INSTALL/) for your environment. This will require changes to the server that runs your database, but several managed database services such as [Aiven support it out of the box](https://aiven.io/postgresql).
 
 ## Installation
 
@@ -37,7 +37,7 @@ pip install django-security-label
           "django.contrib.sessions.middleware.SessionMiddleware",
           "django.contrib.auth.middleware.AuthenticationMiddleware",
           # MaskedReadsMiddleware must be after AuthenticationMiddleware because
-          # it requires a write to the database.
+          # AuthenticationMiddleware writes to the database.
           "django_security_label.middleware.MaskedReadsMiddleware",
       ]
   ```
@@ -67,12 +67,10 @@ pip install django-security-label
               ),
               labels.AnonymizeColumn(
                   fields=["confidential"],
-                  provider="anon",
                   string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$",
               ),
               labels.AnonymizeColumn(
                   fields=["random_int"],
-                  provider="anon",
                   string_literal="MASKED WITH FUNCTION anon.random_int_between(0,50)",
               ),
           ]
@@ -157,6 +155,36 @@ Below are examples of the Django admin using the masked reading with a superuser
 #### Staff user / masked Read
 ![Masked Read](docs/images/masked_read.png)
 
+#### Using the example app
+
+1. Run migrations:
+
+  ```bash
+  uv run python -m example.manage migrate
+  ```
+
+2. Create the PostgreSQL roles and Django groups defined in ``SECURITY_LABEL_GROUPS_TO_ROLES``:
+
+  ```bash
+  uv run python example/manage.py setup_roles
+  ```
+
+3. Set up staff users and sample data:
+
+  ```bash
+  uv run python example/manage.py setup_data
+  ```
+
+  This will create a staff user for each group with permissions to manage all ``core`` models. You will be prompted to set a password for each user. It also ensures there are at least 3 ``MaskedColumn`` rows and prints a table of the raw data.
+
+4. Run the development server:
+
+  ```bash
+  uv run python example/manage.py runserver
+  ```
+
+5. Log in as each staff user (e.g. ``analysts``, ``developers``) and [view the ``MaskedColumn`` list](http://127.0.0.1:8000/admin/core/maskedcolumn/). Compare the values shown in the admin to the raw data printed by ``setup_data`` to see how each role's masking rules affect the data.
+
 ### Controlling masked reads
 
 The default configuration of this package uses dynamic masking. This is because static masking will irrevocably destroy your database's data. While this is a valuable tool for some staging environments, it's not the goal at the moment.
@@ -222,3 +250,11 @@ labels.AnonymizeColumn(
     string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$",
 ),
 ```
+
+
+## Use cases
+
+### Static staging
+
+Set masking labels on models, don't use middleware.
+Clone production to staging. Use the `anon.anonymize_database()`

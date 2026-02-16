@@ -1,17 +1,12 @@
 # Django Security Label
 
-Django support for PostgreSQL security labels.
-
-## Overview
-
-`django-security-label` provides Django integration for
-[PostgreSQL security labels](https://www.postgresql.org/docs/current/sql-security-label.html),
-enabling row-level security policies driven by label-based access control.
+This package provides tools for applying and managing security labels in PostgreSQL databases on your Django models. Combined with the [PostgreSQL Anonymizer](https://postgresql-anonymizer.readthedocs.io/en/stable/) extension, this can allow you to mask columns to limit exposure of sensitive data.
 
 ## Quick Links
 
-- [Installation](installation.md) — prerequisites, install, and configure
-- [Getting Started](tutorials/getting-started.md) — try the example app
-- [API Reference](reference/) — auto-generated reference documentation
-- [Overview](explanation/overview.md) — how it all fits together
-- [Contributing](contribute.md) — run tests and work on the docs
+- [Installation](installation.md)
+- [Run the example app](tutorials/run-the-example.md)
+- [Explanation](explanation/overview.md)
+- [How-To Guides](how-to-guides/customizing-masked-reads.md)
+- [API Reference](reference/)
+- [Contributing guide](contribute.md)

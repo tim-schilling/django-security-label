@@ -75,7 +75,7 @@ class MaskedReadsMiddleware:
 
 
 class GroupMaskingMiddleware:
-    """Selects a per-request PostgreSQL role based on the user's Django group.
+    """Switches to a PostgreSQL role based on the user's Django group.
 
     Reads ``settings.SECURITY_LABEL_GROUPS_TO_ROLES`` — a list of
     ``(group_name, db_role)`` tuples — and uses the first matching group.
@@ -83,8 +83,7 @@ class GroupMaskingMiddleware:
 
     Subclass and override
     [determine_db_role][django_security_label.middleware.GroupMaskingMiddleware.determine_db_role]
-    to change the
-    role selection logic.
+    to change the role selection logic.
     """
 
     def __init__(self, get_response):

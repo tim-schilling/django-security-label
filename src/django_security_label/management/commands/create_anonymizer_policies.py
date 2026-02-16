@@ -1,13 +1,14 @@
-"""Register masking policies with PostgreSQL Anonymizer.
+"""Register security label providers / masking policies in PostgreSQL.
 
 Sets the ``anon.masking_policies`` database parameter via
 ``ALTER DATABASE``.  This must be done before any ``SECURITY LABEL``
-referencing those policies can be applied.
+referencing those policies can be applied or applying any migration using
+a [ColumnSecurityLabel][django_security_label.labels.ColumnSecurityLabel].
 
-Usage::
+Usage:
 
-    python manage.py create_anonymizer_policies devs analysts
-    python manage.py create_anonymizer_policies anon --database other
+    python manage.py create_anonymizer_policies <policy_name1> <policy_name2>
+    python manage.py create_anonymizer_policies <policy_name> --database <database_name>
 """
 
 from __future__ import annotations

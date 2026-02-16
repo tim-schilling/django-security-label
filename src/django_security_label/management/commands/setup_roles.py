@@ -5,10 +5,12 @@ Reads ``settings.SECURITY_LABEL_GROUPS_TO_ROLES`` — a list of
 `Group` and corresponding PostgreSQL
 role exist.  Safe to run multiple times.
 
-Usage::
+This is meant to be used with [GroupMaskingMiddleware][django_security_label.middleware.GroupMaskingMiddleware].
+
+Usage:
 
     python manage.py setup_roles
-    python manage.py setup_roles --database other
+    python manage.py setup_roles --database <database_name>
 """
 
 from __future__ import annotations

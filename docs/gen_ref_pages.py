@@ -41,12 +41,9 @@ for path in sorted(src.rglob("*.py")):
 
     identifier = ".".join(parts)
 
-    # Strip the leading package name and flatten management commands
+    # Strip the leading package name
     # so the nav reads e.g. "labels" instead of "django_security_label > labels".
-    if "management" in parts and "commands" in parts:
-        nav_parts = (parts[-1],)
-    else:
-        nav_parts = parts[1:]
+    nav_parts = parts[1:]
 
     nav[nav_parts] = doc_path.as_posix()
 

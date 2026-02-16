@@ -42,11 +42,13 @@ nav:
   - Home: index.md
   - Installation: installation.md
   - Tutorials:
-      - Getting Started: tutorials/getting-started.md
+      - Running the Example App: tutorials/run-the-example.md
   - How-To Guides:
       - Customizing Masked Reads: how-to-guides/customizing-masked-reads.md
       - Masking Functions: how-to-guides/masking-functions.md
+      - Setting Up Group-Based Masking: how-to-guides/group-based-masking.md
   - Reference: reference/
   - Explanation:
       - Overview: explanation/overview.md
+      - How Dynamic Masking Works: explanation/how-dynamic-masking-works.md
   - Contributing: contribute.md

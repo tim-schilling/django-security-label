@@ -47,20 +47,20 @@ The docs follow the [Diataxis](https://diataxis.fr/) framework:
 
 ```
 docs/
+├── explanation/               # Understanding-oriented discussion
+├── images/                    # Screenshots and diagrams
+├── how-to-guides/             # Task-oriented recipes
+├── reference/                 # Auto-generated API reference (do not edit)
+├── tutorials/                 # Learning-oriented guides
 ├── index.md                   # Landing page
 ├── installation.md            # Installation and configuration
 ├── contribute.md              # Contributing guide (this page)
-├── tutorials/                 # Learning-oriented guides
-├── how-to-guides/             # Task-oriented recipes
-├── explanation/               # Understanding-oriented discussion
-├── reference/                 # Auto-generated API reference (do not edit)
-├── images/                    # Screenshots and diagrams
 └── gen_ref_pages.py           # Script that generates reference pages
 ```
 
 ### API reference
 
-Reference docs under `reference/` are **auto-generated** — do not edit
+Reference docs under `reference/` are **auto-generated**. Please do not edit
 them by hand. They are produced at build time by `docs/gen_ref_pages.py`, which
 walks `src/django_security_label/` and creates a page per module using
 [mkdocstrings](https://mkdocstrings.github.io/). To improve the reference

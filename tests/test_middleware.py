@@ -5,6 +5,7 @@ from functools import partial
 
 from django.contrib.auth.models import Group, User
 from django.db import InternalError
+from django.http import HttpRequest
 from django.test import RequestFactory, override_settings
 
 from django_security_label import constants
@@ -273,3 +274,18 @@ class TestGroupMaskingMiddleware(AnonTransactionTestCase):
 
         self.test_record.refresh_from_db()
         self.assertEqual(self.test_record.safe_text, "safe_text_value")
+
+    def test_no_masking_option_with_override(self):
+        class StubGroupMaskingMiddleware(GroupMaskingMiddleware):
+            def determine_db_role(self, request: HttpRequest) -> str | None:
+                return None
+
+        middleware = StubGroupMaskingMiddleware(
+            partial(get_response_read, test_record=self.test_record)
+        )
+        request = self.request_factory.get("/")
+
+        response = middleware(request)
+
+        self.assertEqual(response.row.text, "secret_text_value")
+        self.assertEqual(response.row.confidential, "hunter2")

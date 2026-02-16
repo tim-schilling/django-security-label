@@ -41,7 +41,7 @@ class TestSetupRolesCommand(TransactionTestCase):
                     f"SET anon.masking_policies TO %s",
                     [policies],
                 )
-            else:
+            else:  # pragma: no cover
                 cursor.execute(
                     f"ALTER DATABASE {quote_name(db_name)} RESET anon.masking_policies"
                 )

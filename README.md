@@ -32,14 +32,13 @@ pip install django-security-label
 2. Enable the middleware for relevant environments:
 
   ```python
-  if ENVIRONMENT_VARIABLE == "staging":
-      MIDDLEWARE = [
-          "django.contrib.sessions.middleware.SessionMiddleware",
-          "django.contrib.auth.middleware.AuthenticationMiddleware",
-          # MaskedReadsMiddleware must be after AuthenticationMiddleware because
-          # AuthenticationMiddleware writes to the database.
-          "django_security_label.middleware.MaskedReadsMiddleware",
-      ]
+  MIDDLEWARE = [
+      "django.contrib.sessions.middleware.SessionMiddleware",
+      "django.contrib.auth.middleware.AuthenticationMiddleware",
+      # MaskedReadsMiddleware must be after AuthenticationMiddleware because
+      # AuthenticationMiddleware writes to the database.
+      "django_security_label.middleware.MaskedReadsMiddleware",
+  ]
   ```
   Note: The PostgreSQL role that is used for masked reads will not have the ability to insert, update or delete data on any table that has a masking security label applied to it.
 

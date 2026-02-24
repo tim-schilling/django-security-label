@@ -6,4 +6,4 @@ import os
 # This allows for building dev distributions to test
 # the release process.
 # See .github/workflows/test_release.yml
-__version__ = VERSION = "0.1.0" + os.environ.get("DSL_VERSION_DEV", "")
+__version__ = VERSION = "0.2.0" + os.environ.get("DSL_VERSION_DEV", "")

@@ -253,11 +253,3 @@ labels.AnonymizeColumn(
     string_literal="MASKED WITH VALUE $$CONFIDENTIAL$$",
 ),
 ```
-
-
-## Use cases
-
-### Static staging
-
-Set masking labels on models, don't use middleware.
-Clone production to staging. Use the `anon.anonymize_database()`

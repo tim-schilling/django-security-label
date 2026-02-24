@@ -81,6 +81,9 @@ class GroupMaskingMiddleware:
     ``(group_name, db_role)`` tuples — and uses the first matching group.
     Falls back to the default masked reader role.
 
+    Set ``db_role`` to ``None`` for a group to grant unmasked reads to
+    members of that group, bypassing masking entirely.
+
     Subclass and override
     [determine_db_role][django_security_label.middleware.GroupMaskingMiddleware.determine_db_role]
     to change the role selection logic.
@@ -92,10 +95,9 @@ class GroupMaskingMiddleware:
     def determine_db_role(self, request: HttpRequest) -> str | None:
         """Return the PostgreSQL role to use for this request.
 
-        Returns ``None`` for superusers, skipping masking entirely.
         Iterates ``settings.SECURITY_LABEL_GROUPS_TO_ROLES`` and returns
         the ``db_role`` for the first group the user belongs to.
-        Returns the default masked reader role if no group matches.
+        Returns ``None`` to skip masking entirely and the default masked reader role if no group matches.
         """
         user = getattr(request, "user", None)
         if user is not None:

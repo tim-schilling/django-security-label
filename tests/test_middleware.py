@@ -5,7 +5,6 @@ from functools import partial
 
 from django.contrib.auth.models import Group, User
 from django.db import InternalError
-from django.http import HttpRequest
 from django.test import RequestFactory, override_settings
 
 from django_security_label import constants
@@ -172,6 +171,7 @@ class TestAnalystsMaskedReadsMiddleware(AnonTransactionTestCase):
 GROUPS_TO_ROLES = [
     ("Masked Readers", constants.MASKED_READER_ROLE),
     ("Analysts", "analysts_reader"),
+    ("Unmasked", None),
 ]
 
 
@@ -281,6 +281,26 @@ class TestGroupMaskingMiddleware(AnonTransactionTestCase):
         self.assertNotEqual(response.row.text, "secret_text_value")
         self.assertEqual(response.row.confidential, "CONFIDENTIAL")
 
+    def test_user_in_none_db_role_group_sees_real_data(self):
+        user = User.objects.create_user(username="unmasked_user", password="test")
+        group = Group.objects.create(name="Unmasked")
+        user.groups.add(group)
+
+        middleware = GroupMaskingMiddleware(
+            partial(get_response_read, test_record=self.test_record)
+        )
+        request = self.request_factory.get("/")
+        request.user = user
+
+        response = middleware(request)
+
+        self.assertEqual(response.row.text, "secret_text_value")
+        self.assertEqual(
+            response.row.uuid, uuid.UUID("12345678-1234-5678-1234-567812345678")
+        )
+        self.assertEqual(response.row.confidential, "hunter2")
+        self.assertEqual(response.row.random_int, 999)
+
     def test_masked_user_cant_update(self):
         middleware = GroupMaskingMiddleware(
             partial(get_response_update, test_record=self.test_record)
@@ -292,18 +312,3 @@ class TestGroupMaskingMiddleware(AnonTransactionTestCase):
 
         self.test_record.refresh_from_db()
         self.assertEqual(self.test_record.safe_text, "safe_text_value")
-
-    def test_no_masking_option_with_override(self):
-        class StubGroupMaskingMiddleware(GroupMaskingMiddleware):
-            def determine_db_role(self, request: HttpRequest) -> str | None:
-                return None
-
-        middleware = StubGroupMaskingMiddleware(
-            partial(get_response_read, test_record=self.test_record)
-        )
-        request = self.request_factory.get("/")
-
-        response = middleware(request)
-
-        self.assertEqual(response.row.text, "secret_text_value")
-        self.assertEqual(response.row.confidential, "hunter2")

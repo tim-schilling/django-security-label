@@ -1,16 +1,16 @@
-"""Create Django groups and PostgreSQL roles from settings.
+"""Create Django groups and PostgreSQL masking policies from settings.
 
-Reads ``settings.SECURITY_LABEL_GROUPS_TO_ROLES`` — a list of
-``(group_name, db_role)`` tuples — and ensures each Django
-`Group` and corresponding PostgreSQL
-role exist.  Safe to run multiple times.
+Reads ``settings.SECURITY_LABEL_GROUPS_TO_POLICIES`` — a list of
+``(group_name, policy)`` tuples — and ensures each Django
+`Group` and corresponding PostgreSQL masking policy -
+role pair exist.  Safe to run multiple times.
 
 This is meant to be used with [GroupMaskingMiddleware][django_security_label.middleware.GroupMaskingMiddleware].
 
 Usage:
 
-    python manage.py setup_roles
-    python manage.py setup_roles --database <database_name>
+    python manage.py setup_policies
+    python manage.py setup_policies --database <database_name>
 """
 
 from __future__ import annotations
@@ -26,18 +26,18 @@ from django_security_label.operations import create_role, create_security_label_
 class Command(BaseCommand):
     """Management command that provisions groups and roles.
 
-    For each entry in ``SECURITY_LABEL_GROUPS_TO_ROLES`` the command:
+    For each entry in ``SECURITY_LABEL_GROUPS_TO_POLICIES`` the command:
 
     1. Creates the Django group (if it doesn't exist).
     2. Creates a ``NOLOGIN`` PostgreSQL role that inherits from the
        database user.
-    3. Applies a ``MASKED`` security label on the role so PostgreSQL
-       Anonymizer recognises it.
+    3. Configures the masking policy by applying a ``MASKED`` security
+       label on the role so PostgreSQL Anonymizer recognises it.
     """
 
     help = (
-        "Create Django groups and PostgreSQL roles from SECURITY_LABEL_GROUPS_TO_ROLES. "
-        "Safe to run multiple times; existing roles and security labels are updated."
+        "Create Django groups and PostgreSQL masking policy-role pairs from SECURITY_LABEL_GROUPS_TO_POLICIES. "
+        "Safe to run multiple times; existing groups and policies are updated, but not removed."
     )
 
     def add_arguments(self, parser):
@@ -48,45 +48,46 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        groups_to_roles = getattr(settings, "SECURITY_LABEL_GROUPS_TO_ROLES", [])
-        if not groups_to_roles:
-            self.stderr.write("SECURITY_LABEL_GROUPS_TO_ROLES is not defined or empty.")
+        groups_to_policies = getattr(settings, "SECURITY_LABEL_GROUPS_TO_POLICIES", [])
+        if not groups_to_policies:
+            self.stderr.write(
+                "SECURITY_LABEL_GROUPS_TO_POLICIES is not defined or empty."
+            )
             return
 
         Group.objects.bulk_create(
-            [Group(name=group_name) for group_name, _ in groups_to_roles],
+            [Group(name=group_name) for group_name, _ in groups_to_policies],
             ignore_conflicts=True,
         )
 
         db_alias = options["database"]
         db_connection = connections[db_alias]
-        db_roles = [db_role for _, db_role in groups_to_roles]
+        policies = [policy for _, policy in groups_to_policies]
 
-        self._register_masking_policies(db_connection, db_roles)
+        self._register_masking_policies(db_connection, policies)
 
-        for group_name, db_role in groups_to_roles:
+        for group_name, policy in groups_to_policies:
             with (
                 transaction.atomic(using=db_alias),
                 db_connection.schema_editor(atomic=True) as schema_editor,
             ):
-                create_role(schema_editor, name=db_role, inherit_from_db_user=True)
+                create_role(schema_editor, name=policy, inherit_from_db_user=True)
                 create_security_label_for_role(
                     schema_editor,
-                    provider=db_role,
-                    role=db_role,
+                    provider=policy,
+                    role=policy,
                     string_literal="MASKED",
                 )
-            self.stdout.write(f"Configured group '{group_name}' with role '{db_role}'")
+            self.stdout.write(f"Configured group '{group_name}' with policy '{policy}'")
 
-    def _register_masking_policies(self, db_connection, db_roles):
+    def _register_masking_policies(self, db_connection, policies):
         """Register providers with ``anon.masking_policies`` before applying labels."""
         db_name = db_connection.settings_dict["NAME"]
         quote_name = db_connection.ops.quote_name
-        policies = ", ".join(sorted(db_roles))
         with db_connection.cursor() as cursor:
             cursor.execute(
                 f"ALTER DATABASE {quote_name(db_name)} SET anon.masking_policies TO %s",
-                [policies],
+                [", ".join(sorted(policies))],
             )
         # Reconnect so the new masking_policies setting takes effect.
         db_connection.close()

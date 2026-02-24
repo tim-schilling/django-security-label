@@ -12,7 +12,7 @@ This package targets [PostgreSQL's ``SECURITY LABEL``](https://www.postgresql.or
 
 Security labels are database schema that can be associated with a particular schema object, such as a table or column.
 
-By default, PostgreSQL Anonymizer creates the ``anon`` provider. This package defaults to using that. If more than one masking policy/provider is desired for an object, a new provider must be created. In this case, it seems to make sense to have one PostgreSQL role per provide/policy. An example of this can be seen in the code for the ``setup_roles`` management command and is how ``GroupMaskingMiddleware`` works.
+By default, PostgreSQL Anonymizer creates the ``anon`` provider. This package defaults to using that. If more than one masking policy/provider is desired for an object, a new provider must be created. In this case, it seems to make sense to have one PostgreSQL role per provide/policy. An example of this can be seen in the code for the ``setup_policies`` management command and is how ``GroupMaskingMiddleware`` works.
 
 ## Session role switching
 

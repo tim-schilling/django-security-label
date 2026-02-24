@@ -31,10 +31,10 @@ cd django-security-label
     uv run python -m example.manage migrate
     ```
 
-2. Create the PostgreSQL roles and Django groups defined in ``SECURITY_LABEL_GROUPS_TO_ROLES``:
+2. Create the PostgreSQL roles and Django groups defined in ``SECURITY_LABEL_GROUPS_TO_POLICIES``:
 
     ```bash
-    uv run python example/manage.py setup_roles
+    uv run python example/manage.py setup_policies
     ```
 
     This will create PostgreSQL roles that will be clones of the user used in the ``DATABASES`` setting. Authenticated users of the running ``example`` Django project that are a part of the ``auth.Group`` will have any database connections use the associated PostgreSQL role rather than the standard ``DATABASES`` user.

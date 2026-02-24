@@ -77,26 +77,29 @@ class MaskedReadsMiddleware:
 class GroupMaskingMiddleware:
     """Switches to a PostgreSQL role based on the user's Django group.
 
-    Reads ``settings.SECURITY_LABEL_GROUPS_TO_ROLES`` — a list of
-    ``(group_name, db_role)`` tuples — and uses the first matching group.
-    Falls back to the default masked reader role.
+    Reads ``settings.SECURITY_LABEL_GROUPS_TO_POLICIES`` — a list of
+    ``(group_name, policy)`` tuples — and uses the first matching group.
+    Falls back to the default masked reader role. This requires the command
+    ``setup_policies`` to have been run.
 
-    Set ``db_role`` to ``None`` for a group to grant unmasked reads to
+    Set ``policy`` to ``None`` for a group to grant unmasked reads to
     members of that group, bypassing masking entirely.
 
     Subclass and override
-    [determine_db_role][django_security_label.middleware.GroupMaskingMiddleware.determine_db_role]
-    to change the role selection logic.
+    [determine_policy][django_security_label.middleware.GroupMaskingMiddleware.determine_policy]
+    to change the policy selection logic.
     """
 
     def __init__(self, get_response):
         self.get_response = get_response
 
-    def determine_db_role(self, request: HttpRequest) -> str | None:
-        """Return the PostgreSQL role to use for this request.
+    def determine_policy(self, request: HttpRequest) -> str | None:
+        """Return the PostgreSQL masking policy to use for this request.
 
-        Iterates ``settings.SECURITY_LABEL_GROUPS_TO_ROLES`` and returns
-        the ``db_role`` for the first group the user belongs to.
+        Iterates ``settings.SECURITY_LABEL_GROUPS_TO_POLICIES`` and returns
+        the ``policy`` for the first group the user belongs to. The masking ``policy``
+        and PostgreSQL role share the same name, but are different schema objects.
+
         Returns ``None`` to skip masking entirely and the default masked reader role if no group matches.
         """
         user = getattr(request, "user", None)
@@ -104,15 +107,15 @@ class GroupMaskingMiddleware:
             if getattr(user, "is_superuser", False):
                 return None
             user_groups = user.groups.in_bulk(field_name="name")
-            for group_name, db_role in settings.SECURITY_LABEL_GROUPS_TO_ROLES:
+            for group_name, policy in settings.SECURITY_LABEL_GROUPS_TO_POLICIES:
                 if group_name in user_groups:
-                    return db_role
+                    return policy
         return constants.MASKED_READER_ROLE
 
     def __call__(self, request):
-        db_role = self.determine_db_role(request)
-        if db_role is not None:
-            set_session_role(db_role)
+        policy = self.determine_policy(request)
+        if policy is not None:
+            set_session_role(policy)
             try:
                 response = self.get_response(request)
             except InternalError:

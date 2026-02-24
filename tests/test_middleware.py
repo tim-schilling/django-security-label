@@ -168,14 +168,14 @@ class TestAnalystsMaskedReadsMiddleware(AnonTransactionTestCase):
         self.assertEqual(response.row.random_int, 999)
 
 
-GROUPS_TO_ROLES = [
+GROUPS_TO_POLICIES = [
     ("Masked Readers", constants.MASKED_READER_ROLE),
     ("Analysts", "analysts_reader"),
     ("Unmasked", None),
 ]
 
 
-@override_settings(SECURITY_LABEL_GROUPS_TO_ROLES=GROUPS_TO_ROLES)
+@override_settings(SECURITY_LABEL_GROUPS_TO_POLICIES=GROUPS_TO_POLICIES)
 class TestGroupMaskingMiddleware(AnonTransactionTestCase):
     request_factory = RequestFactory()
 
@@ -277,11 +277,11 @@ class TestGroupMaskingMiddleware(AnonTransactionTestCase):
 
         response = middleware(request)
 
-        # "Masked Readers" is first in GROUPS_TO_ROLES, so dsl_masked_reader applies
+        # "Masked Readers" is first in GROUPS_TO_POLICIES, so dsl_masked_reader applies
         self.assertNotEqual(response.row.text, "secret_text_value")
         self.assertEqual(response.row.confidential, "CONFIDENTIAL")
 
-    def test_user_in_none_db_role_group_sees_real_data(self):
+    def test_user_in_none_policy_group_sees_real_data(self):
         user = User.objects.create_user(username="unmasked_user", password="test")
         group = Group.objects.create(name="Unmasked")
         user.groups.add(group)

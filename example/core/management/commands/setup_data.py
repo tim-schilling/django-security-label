@@ -34,7 +34,7 @@ SAMPLE_DATA = [
 
 class Command(BaseCommand):
     help = (
-        "Set up example data: create groups from SECURITY_LABEL_GROUPS_TO_ROLES, "
+        "Set up example data: create groups from SECURITY_LABEL_GROUPS_TO_POLICIES, "
         "a staff user for each group, and sample MaskedColumn rows."
     )
 
@@ -47,23 +47,25 @@ class Command(BaseCommand):
     def _setup_groups_and_users(self) -> list[tuple[str, str]]:
         """Returns a list of (username, group_name) for demo users."""
         users = []
-        groups_to_roles = getattr(settings, "SECURITY_LABEL_GROUPS_TO_ROLES", [])
-        if not groups_to_roles:
-            self.stderr.write("SECURITY_LABEL_GROUPS_TO_ROLES is not defined or empty.")
+        groups_to_policies = getattr(settings, "SECURITY_LABEL_GROUPS_TO_POLICIES", [])
+        if not groups_to_policies:
+            self.stderr.write(
+                "SECURITY_LABEL_GROUPS_TO_POLICIES is not defined or empty."
+            )
             return users
 
         core_permissions = Permission.objects.filter(
             content_type__app_label="core",
         )
 
-        for group_name, db_role in groups_to_roles:
+        for group_name, policy in groups_to_policies:
             group, created = Group.objects.get_or_create(name=group_name)
             group.permissions.set(core_permissions)
             if created:
-                self.stdout.write(f"Created group '{group_name}' (role: {db_role})")
+                self.stdout.write(f"Created group '{group_name}' (policy: {policy})")
             else:
                 self.stdout.write(
-                    f"Group '{group_name}' already exists (role: {db_role})"
+                    f"Group '{group_name}' already exists (role: {policy})"
                 )
 
             username = group_name.lower()

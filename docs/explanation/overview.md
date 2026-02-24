@@ -18,9 +18,9 @@ This package isn't without its constraints.
 
 This package is a bit of a hack in that it hijacks the ``Index`` feature to run custom SQL after the table has been created. While this is entirely valid and is proven to work in tests, it would be better if Django's migrations better supported column specific schema. [Jacob Walls has identified some work](https://forum.djangoproject.com/t/can-the-migration-system-be-extended-by-third-party-apps/44009/4) that seems to be reasonable.
 
-#### Lack of clean-up on setup_roles
+#### Lack of clean-up on setup_policies
 
-The ``GroupMaskingMiddleware`` requires a user to run the ``setup_roles`` management command. This creates new roles in the database and marks them as masked for the relevant security label provider. These changes will only update the mentioned roles. If a role is removed, you must remove that role from each of your environments that is exists on. These roles are created with the ``NOLOGIN`` option, so it's unlikely they do anything other than add noise when looking at your database. That said, it's
+The ``GroupMaskingMiddleware`` requires a user to run the ``setup_policies`` management command. This creates new roles in the database and marks them as masked for the relevant security label provider. These changes will only update the mentioned roles. If a role is removed, you must remove that role from each of your environments that is exists on. These roles are created with the ``NOLOGIN`` option, so it's unlikely they do anything other than add noise when looking at your database. That said, it's
 an area of improvement for this package.
 
 

@@ -4,23 +4,23 @@ This guide walks through configuring different masking behavior per Django ``aut
 
 Using this strategy would allow users of a group called "analysts" to view incomes, and locations, but not names. While users of group, "developers" would only see incomes.
 
-## Define `SECURITY_LABEL_GROUPS_TO_ROLES` setting
+## Define `SECURITY_LABEL_GROUPS_TO_POLICIES` setting
 
 In your settings file, define a list of group name and database role pairs. A group can only appear in this list once. The database role name will also be used for the security label provider / masking rule policy. Order is important. If a user is associated with multiple groups, the role with the first group in this list will be used.
 
 ```python
-SECURITY_LABEL_GROUPS_TO_ROLES = [
+SECURITY_LABEL_GROUPS_TO_POLICIES = [
     ("Analysts", "analyst"),
     ("Developers", "developer"),
 ]
 ```
 
-## Run ``setup_roles``
+## Run ``setup_policies``
 
-Use the ``setup_roles`` management command to create the PostgreSQL roles and masking policies. If you're using multiple databases, you can customize that with the ``--database`` argument.
+Use the ``setup_policies`` management command to create the PostgreSQL roles and masking policies. If you're using multiple databases, you can customize that with the ``--database`` argument.
 
 ```bash
-python -m manage setup_roles
+python -m manage setup_policies
 ```
 
 This will create the ``Group`` instance if it doesn't exist.

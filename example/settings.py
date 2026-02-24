@@ -60,7 +60,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 # Map group names to database roles
-SECURITY_LABEL_GROUPS_TO_ROLES: list[tuple[str, str]] = [
+SECURITY_LABEL_GROUPS_TO_POLICIES: list[tuple[str, str]] = [
     ("Analysts", "dsl_analysts"),
     ("Developers", "dsl_devs"),
 ]

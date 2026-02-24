@@ -189,6 +189,24 @@ class TestGroupMaskingMiddleware(AnonTransactionTestCase):
             random_int=999,
         )
 
+    def test_superuser_sees_real_data(self):
+        user = User.objects.create_superuser(username="super_user", password="test")
+
+        middleware = GroupMaskingMiddleware(
+            partial(get_response_read, test_record=self.test_record)
+        )
+        request = self.request_factory.get("/")
+        request.user = user
+
+        response = middleware(request)
+
+        self.assertEqual(response.row.text, "secret_text_value")
+        self.assertEqual(
+            response.row.uuid, uuid.UUID("12345678-1234-5678-1234-567812345678")
+        )
+        self.assertEqual(response.row.confidential, "hunter2")
+        self.assertEqual(response.row.random_int, 999)
+
     def test_falls_back_to_masked_reader_without_matching_group(self):
         middleware = GroupMaskingMiddleware(
             partial(get_response_read, test_record=self.test_record)

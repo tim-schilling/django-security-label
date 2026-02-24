@@ -202,7 +202,7 @@ For example, if you only wanted to force anonymous users to have masked reads:
 ```python
 from __future__ import annotations
 
-from django.db import connection
+from django.db import connection, InternalError
 from django.http import HttpRequest
 from django_security_label.middleware import enable_masked_reads, disable_masked_reads
 
@@ -220,7 +220,11 @@ class AnonymousOnlyMaskedReadsMiddleware:
         if enable_masking := use_masked_reads(request):
             enable_masked_reads()
 
-        response = self.get_response(request)
+        try:
+            response = self.get_response(request)
+        except InternalError:
+            disable_masked_reads()
+            raise
 
         if enable_masking:
             disable_masked_reads()

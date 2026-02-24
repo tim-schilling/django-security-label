@@ -82,3 +82,6 @@ Update the ``MIDDLEWARE`` setting to include ``django_security_label.middleware.
 ## Assign users to groups
 
 At this point, you can assign users to the relevant groups. This can be done in the Django admin or you can do this via the shell. When these users make requests to the Django application, the defined masking rules will be in effect for them.
+
+!!! note "Superusers bypass masking"
+    Users with ``is_superuser=True`` always see unmasked data, regardless of their group membership. The middleware skips role switching entirely for superusers.

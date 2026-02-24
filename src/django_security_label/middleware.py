@@ -92,12 +92,15 @@ class GroupMaskingMiddleware:
     def determine_db_role(self, request: HttpRequest) -> str | None:
         """Return the PostgreSQL role to use for this request.
 
+        Returns ``None`` for superusers, skipping masking entirely.
         Iterates ``settings.SECURITY_LABEL_GROUPS_TO_ROLES`` and returns
         the ``db_role`` for the first group the user belongs to.
         Returns the default masked reader role if no group matches.
         """
         user = getattr(request, "user", None)
         if user is not None:
+            if getattr(user, "is_superuser", False):
+                return None
             user_groups = user.groups.in_bulk(field_name="name")
             for group_name, db_role in settings.SECURITY_LABEL_GROUPS_TO_ROLES:
                 if group_name in user_groups:

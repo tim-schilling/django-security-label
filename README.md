@@ -12,7 +12,7 @@
 | src/django\_security\_label/management/\_\_init\_\_.py                          |        0 |        0 |        0 |        0 |    100% |           |
 | src/django\_security\_label/management/commands/\_\_init\_\_.py                 |        0 |        0 |        0 |        0 |    100% |           |
 | src/django\_security\_label/management/commands/create\_anonymizer\_policies.py |       16 |        0 |        0 |        0 |    100% |           |
-| src/django\_security\_label/management/commands/setup\_roles.py                 |       33 |        0 |        4 |        0 |    100% |           |
+| src/django\_security\_label/management/commands/setup\_policies.py              |       32 |        0 |        4 |        0 |    100% |           |
 | src/django\_security\_label/middleware.py                                       |       55 |        0 |       12 |        0 |    100% |           |
 | src/django\_security\_label/migrations/0001\_initial.py                         |       14 |        2 |        0 |        0 |     86% |     17-18 |
 | src/django\_security\_label/migrations/\_\_init\_\_.py                          |        0 |        0 |        0 |        0 |    100% |           |
@@ -24,7 +24,7 @@
 | tests/test\_makemigrations.py                                                   |       38 |        0 |        0 |        0 |    100% |           |
 | tests/test\_middleware.py                                                       |      158 |        0 |        0 |        0 |    100% |           |
 | tests/test\_operations.py                                                       |       64 |        0 |        0 |        0 |    100% |           |
-| tests/test\_setup\_roles.py                                                     |       74 |        1 |        6 |        1 |     98% |        32 |
+| tests/test\_setup\_policies.py                                                  |       74 |        1 |        6 |        1 |     98% |        32 |
 | tests/test\_sqlmigrate.py                                                       |       40 |        0 |        0 |        0 |    100% |           |
 | tests/testapp/\_\_init\_\_.py                                                   |        0 |        0 |        0 |        0 |    100% |           |
 | tests/testapp/apps.py                                                           |        5 |        0 |        0 |        0 |    100% |           |
@@ -33,7 +33,7 @@
 | tests/testapp/migrations/\_\_init\_\_.py                                        |        0 |        0 |        0 |        0 |    100% |           |
 | tests/testapp/models.py                                                         |       12 |        0 |        0 |        0 |    100% |           |
 | tests/utils.py                                                                  |       37 |        0 |        0 |        0 |    100% |           |
-| **TOTAL**                                                                       |  **923** |    **7** |   **50** |    **4** | **99%** |           |
+| **TOTAL**                                                                       |  **922** |    **7** |   **50** |    **4** | **99%** |           |
 
 
 ## Setup coverage badge

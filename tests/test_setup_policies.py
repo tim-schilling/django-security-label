@@ -99,7 +99,7 @@ class TestSetupPoliciesCommand(TransactionTestCase):
     def test_updates_existing_policies(self):
         self.addCleanup(self._cleanup_roles, ["test_policy_d"])
         with connection.cursor() as cursor:
-            cursor.execute("CREATE ROLE test_role_d NOLOGIN")
+            cursor.execute("CREATE ROLE test_policy_d NOLOGIN")
 
         call_command("setup_policies", stdout=StringIO())
 

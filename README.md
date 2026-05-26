@@ -5,8 +5,8 @@
 | Name                                                                            |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |-------------------------------------------------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
 | src/django\_security\_label/\_\_init\_\_.py                                     |        3 |        0 |        0 |        0 |    100% |           |
-| src/django\_security\_label/apps.py                                             |       38 |        0 |       14 |        2 |     96% |22->21, 59->64 |
-| src/django\_security\_label/compat.py                                           |        6 |        0 |        2 |        0 |    100% |           |
+| src/django\_security\_label/apps.py                                             |       38 |        0 |       14 |        2 |     96% |22-\>21, 59-\>64 |
+| src/django\_security\_label/compat.py                                           |        6 |        1 |        2 |        1 |     75% |         6 |
 | src/django\_security\_label/constants.py                                        |        2 |        0 |        0 |        0 |    100% |           |
 | src/django\_security\_label/labels.py                                           |      117 |        0 |        2 |        0 |    100% |           |
 | src/django\_security\_label/management/\_\_init\_\_.py                          |        0 |        0 |        0 |        0 |    100% |           |
@@ -33,7 +33,7 @@
 | tests/testapp/migrations/\_\_init\_\_.py                                        |        0 |        0 |        0 |        0 |    100% |           |
 | tests/testapp/models.py                                                         |       12 |        0 |        0 |        0 |    100% |           |
 | tests/utils.py                                                                  |       37 |        0 |        0 |        0 |    100% |           |
-| **TOTAL**                                                                       |  **922** |    **7** |   **50** |    **4** | **99%** |           |
+| **TOTAL**                                                                       |  **922** |    **8** |   **50** |    **5** | **99%** |           |
 
 
 ## Setup coverage badge
